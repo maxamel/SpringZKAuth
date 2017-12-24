@@ -1,0 +1,66 @@
+allprojects {
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+
+    group = 'com.github.maxamel'
+    version = '0.0.1'
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
+    }
+}
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.springframework.boot'
+
+repositories {
+    mavenCentral()
+    maven { url "https://oss.sonatype.org/content/groups/public" }
+}
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-devtools')
+    compile('org.springframework.cloud:spring-cloud-starter-config')
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile('org.springframework.kafka:spring-kafka')
+
+    compile('com.github.rozidan:levelog-spring-boot:1.0.0-SNAPSHOT')
+    compile('com.github.rozidan:modelmapper-spring-boot-starter:1.0.1-SNAPSHOT')
+    compile('com.github.rozidan:logger-spring-boot:1.0.0-SNAPSHOT')
+
+    compile('io.springfox:springfox-swagger2:2.7.0')
+    compile('org.flywaydb:flyway-core')
+
+    compileOnly('org.projectlombok:lombok')
+
+    runtime('com.h2database:h2')
+    runtime('org.mariadb.jdbc:mariadb-java-client')
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+    jar {
+        manifest {
+            attributes("Implementation-Title": project.name,
+                    "Implementation-Version": project.version)
+        }
+    }
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:Edgware.RELEASE")
+    }
+    dependencies {
+        dependency 'com.google.guava:guava:23.5-jre'
+    }
+}

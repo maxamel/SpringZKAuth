@@ -1,0 +1,49 @@
+spring:
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: 
+
+  jpa:
+    show-sql: false
+
+    hibernate:
+      ddl-auto: create-drop
+      use-new-id-generator-mappings: true
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+  resources:
+    add-mappings: false
+    
+  h2:
+    console:
+      enabled: true
+
+server:
+  context-path: /zauth
+  port: 8080
+
+security:
+  basic:
+    enabled: false
+
+file: logs/zauth.log
+level:
+    root: info
+    com.github.maxamel: info
+
+flyway:
+  enabled: false
+
+management:
+  security.enabled: false
