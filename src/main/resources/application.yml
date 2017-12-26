@@ -47,3 +47,7 @@ flyway:
 
 management:
   security.enabled: false
+  
+kafka:
+  host:
+    url: "localhost:9092"

@@ -149,7 +149,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.errors[0].rejectedValue", is(equalTo(8.5))))
                 .andExpect(jsonPath("$.errors[0].params").isArray())
                 .andExpect(jsonPath("$.errors[0].params[0]", is(equalTo("10"))));
-
+        
         verifyNoMoreInteractions(service);
     }
 }

@@ -21,6 +21,7 @@ apply plugin: 'org.springframework.boot'
 repositories {
     mavenCentral()
     maven { url "https://oss.sonatype.org/content/groups/public" }
+    maven { url "https://mvnrepository.com/artifact/org.springframework.session/spring-session-jdbc"}
 }
 
 dependencies {
@@ -30,19 +31,23 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
     compile('org.springframework.boot:spring-boot-starter-security')
-    compile('org.springframework.kafka:spring-kafka')
 
+    compile ('org.springframework.session:spring-session-jdbc:1.3.1.RELEASE')
+    compile ('org.springframework.boot:spring-boot-starter-jdbc')
+    compile ('org.springframework:spring-context')
+    
     compile('com.github.rozidan:levelog-spring-boot:1.0.0-SNAPSHOT')
     compile('com.github.rozidan:modelmapper-spring-boot-starter:1.0.1-SNAPSHOT')
     compile('com.github.rozidan:logger-spring-boot:1.0.0-SNAPSHOT')
-
+    compile('org.springframework.kafka:spring-kafka')
+    
     compile('io.springfox:springfox-swagger2:2.7.0')
     compile('org.flywaydb:flyway-core')
 
     compileOnly('org.projectlombok:lombok')
 
     runtime('com.h2database:h2')
-    runtime('org.mariadb.jdbc:mariadb-java-client')
+
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }

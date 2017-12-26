@@ -36,4 +36,6 @@ public class AuditableEntity {
 
     @LastModifiedDate
     private Date lastModifiedDate;
+    
+
 }
