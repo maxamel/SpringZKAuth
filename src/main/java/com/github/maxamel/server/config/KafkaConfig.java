@@ -17,6 +17,8 @@ import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
+import com.github.maxamel.server.web.dtos.UserDto;
+
 @EnableKafka
 @Configuration
 public class KafkaConfig {
@@ -50,25 +52,25 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, HostSummaryDto> hostKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, HostSummaryDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory(new JsonDeserializer<>(HostSummaryDto.class)));
+    public ConcurrentKafkaListenerContainerFactory<String, UserDto> hostKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, UserDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory(new JsonDeserializer<>(UserDto.class)));
         return factory;
     }
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, HostSummaryDto> levelogKafkaContainer() {
-        ConcurrentKafkaListenerContainerFactory<String, HostSummaryDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory(new JsonDeserializer<>(HostSummaryDto.class)));
+    public ConcurrentKafkaListenerContainerFactory<String, UserDto> levelogKafkaContainer() {
+        ConcurrentKafkaListenerContainerFactory<String, UserDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory(new JsonDeserializer<>(UserDto.class)));
         return factory;
     }
 
     @Bean
-    public ProducerFactory<String, NSProvisionDto> producerFactory() {
+    public ProducerFactory<String, UserDto> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean
-    public KafkaTemplate<String, NSProvisionDto> kafkaTemplate() {
+    public KafkaTemplate<String, UserDto> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }
