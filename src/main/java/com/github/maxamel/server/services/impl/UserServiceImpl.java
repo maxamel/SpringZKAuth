@@ -41,16 +41,6 @@ public class UserServiceImpl implements UserService {
         User newuser = repository.save(user);
         return mapper.map(newuser, UserDto.class);
     }
-    
-    @Override
-    @Transactional
-    public UserDto updateToken(UserDto dto) {
-        User user = repository.findByName(dto.getName())
-                .orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + dto.getName(), 1));
-        repository.deleteByName(user.getName());
-        User newuser = repository.save(user);
-        return mapper.map(newuser, UserDto.class);
-    }
 
     @Override
     @Transactional
@@ -62,9 +52,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void removeByName(String name) {
+        httpSession.invalidate();
         repository.deleteByName(name);
     }
 
+    // requires valid authentication
     @Override
     public UserDto get(String name) {
         log.info("get service");

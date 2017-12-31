@@ -4,8 +4,9 @@ CREATE TABLE IF NOT EXISTS user (
   created_date       DATETIME,
   last_modified_by   VARCHAR(255),
   last_modified_date DATETIME,
-  `name`         VARCHAR(255),
+  `name`             VARCHAR(255),
   `token`            BIGINT       NOT NULL,
+  `challenge`        BIGINT       NOT NULL,
   `session`          BOOLEAN      NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY `UNIQUE_USER_NAME` (`name`)

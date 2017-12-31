@@ -39,5 +39,9 @@ public class UserDto extends AuditableDto {
     @ApiModelProperty(required = true)
     @NotNull
     private BigInteger token;
+    
+    @ApiModelProperty(required = true)
+    @NotNull
+    private BigInteger challenge;
 
 }

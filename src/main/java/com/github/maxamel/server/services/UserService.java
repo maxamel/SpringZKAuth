@@ -3,7 +3,7 @@ package com.github.maxamel.server.services;
 import com.github.maxamel.server.web.dtos.UserDto;
 
 /**
- * @author Idan Rozenfeld
+ * @author Max Amelchenko
  */
 public interface UserService {
 
@@ -15,6 +15,4 @@ public interface UserService {
 
     UserDto get(String name);   // requires valid session
     
-    UserDto updateToken(UserDto dto);
-
 }

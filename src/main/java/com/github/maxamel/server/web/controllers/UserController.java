@@ -58,7 +58,7 @@ public class UserController {
         userService.removeByName(name);
     }
 
-    @ApiOperation("Retrieving existing product")
+    @ApiOperation("Retrieving existing user")
     @ApiResponses({
         @ApiResponse(code = 200, message = "User has been removed"),
         @ApiResponse(code = 404, message = "User not found")})

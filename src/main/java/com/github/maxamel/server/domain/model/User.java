@@ -49,6 +49,10 @@ public class User extends AuditableEntity {
     @NotNull
     @Column(nullable = false)
     private BigInteger token;
+    
+    @NotNull
+    @Column(nullable = false)
+    private BigInteger challenge;
 
     @NotNull
     private boolean session;
