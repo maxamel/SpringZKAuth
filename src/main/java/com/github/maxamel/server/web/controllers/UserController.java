@@ -9,6 +9,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -31,10 +34,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final String SESSION_TOKEN = "token";
 
     @Autowired
-    public UserController(UserService productService) {
-        this.userService = productService;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @ApiOperation(value = "Register new user")
@@ -54,18 +58,19 @@ public class UserController {
             @ApiResponse(code = 404, message = "User not found")})
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{name}")
-    public void remove(@PathVariable String name) {
+    public void remove(@PathVariable String name, HttpSession session) {
         userService.removeByName(name);
     }
 
     @ApiOperation("Retrieving existing user")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "User has been removed"),
+        @ApiResponse(code = 200, message = "Successfully fetched user"),
         @ApiResponse(code = 404, message = "User not found")})
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{name}")
-    public UserDto retrieve(@PathVariable String name) {
-        return userService.get(name);
+    @GetMapping("/example")
+    public UserDto retrieve(@PathVariable String name, HttpSession session) {
+        if (session.getAttribute(SESSION_TOKEN).equals("session")) return userService.get(name);
+        return null;
     }
-
+ 
 }

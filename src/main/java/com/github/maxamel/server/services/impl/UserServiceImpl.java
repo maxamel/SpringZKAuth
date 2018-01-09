@@ -24,10 +24,7 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper mapper;
 
     private final UserRepository repository;
-    
-    @Autowired
-    private HttpSession httpSession;
-
+   
     @Autowired
     public UserServiceImpl(ModelMapper mapper, UserRepository repository) {
         this.mapper = mapper;
@@ -45,14 +42,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void remove(long id) {
-        httpSession.invalidate();
         repository.delete(id);
     }
     
     @Override
     @Transactional
     public void removeByName(String name) {
-        httpSession.invalidate();
         repository.deleteByName(name);
     }
 
