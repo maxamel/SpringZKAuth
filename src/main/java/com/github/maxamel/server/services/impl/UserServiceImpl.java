@@ -5,9 +5,6 @@ import com.github.maxamel.server.domain.model.User;
 import com.github.maxamel.server.domain.repositories.UserRepository;
 import com.github.maxamel.server.services.UserService;
 
-import javax.servlet.http.HttpSession;
-
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -17,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * @author Max Amelchenko
  */
-@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -42,22 +38,15 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void remove(long id) {
+        repository.findOne(id).orElseThrow(() -> new EmptyResultDataAccessException("No user found with id: " + id, 1));
         repository.delete(id);
     }
     
     @Override
     @Transactional
     public void removeByName(String name) {
+        repository.findByName(name).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + name, 1));
         repository.deleteByName(name);
     }
 
-    // requires valid authentication
-    @Override
-    public UserDto get(String name) {
-        log.info("get service");
-        User user = repository.findByName(name)
-                .orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + name, 1));
-        return mapper.map(user, UserDto.class);
-    }
-   
 }

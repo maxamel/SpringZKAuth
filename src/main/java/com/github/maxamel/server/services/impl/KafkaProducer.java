@@ -15,6 +15,7 @@ public class KafkaProducer {
     @Autowired
     private KafkaTemplate<String, UserDto> kafkaTemplate;
 
+    
     public void send(String topic, UserDto user) {
         //make sure all messages with the same id will be ordered in the same partition
         ListenableFuture<SendResult<String, UserDto>> future = kafkaTemplate.send(topic, user);

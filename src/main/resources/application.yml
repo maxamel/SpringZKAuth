@@ -1,7 +1,7 @@
 spring:
 
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:~/test
     username: sa
     password: 
 
@@ -46,12 +46,12 @@ level:
     com.github.maxamel: info
 
 flyway:
-  enabled: false
+  enabled: true
 
 management:
   security.enabled: false
   
 kafka:
   host:
-    url: "localhost:9092"
+    url: "172.30.141.117:9092"
     topic: "response"

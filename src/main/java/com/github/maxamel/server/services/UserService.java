@@ -13,6 +13,4 @@ public interface UserService {
    
     void removeByName(String name);
 
-    UserDto get(String name);   // requires valid session
-    
 }

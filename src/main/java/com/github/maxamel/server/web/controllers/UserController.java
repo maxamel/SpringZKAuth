@@ -34,8 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
-    private final String SESSION_TOKEN = "token";
-
+    
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
@@ -47,8 +46,7 @@ public class UserController {
             @ApiResponse(code = 428, message = "Invalid user info", response = ErrorDto.class)})
     @ResponseStatus(code = HttpStatus.CREATED)
     @PutMapping
-    public UserDto register(@ApiParam(value = "User data", name = "User",
-            required = true) @Validated @RequestBody UserDto productDto) {
+    public UserDto register(@ApiParam(value = "User data", name = "User",required = true) @Validated @RequestBody UserDto productDto) {
         return userService.register(productDto);
     }
 
@@ -65,12 +63,12 @@ public class UserController {
     @ApiOperation("Retrieving existing user")
     @ApiResponses({
         @ApiResponse(code = 200, message = "Successfully fetched user"),
-        @ApiResponse(code = 404, message = "User not found")})
+        @ApiResponse(code = 401, message = "Unauthorized Access")})
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/example")
-    public UserDto retrieve(@PathVariable String name, HttpSession session) {
-        if (session.getAttribute(SESSION_TOKEN).equals("session")) return userService.get(name);
-        return null;
+    public UserDto get(HttpSession session) {
+        System.out.println("HELLO");
+        return new UserDto();
     }
  
 }
