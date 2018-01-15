@@ -10,8 +10,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,19 +55,17 @@ public class UserController {
             @ApiResponse(code = 404, message = "User not found")})
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{name}")
-    public void remove(@PathVariable String name, HttpSession session) {
-        userService.removeByName(name);
+    public void remove(@PathVariable String name, @RequestHeader(value="ZKAuth-Token", required=false) String token) {
+        userService.removeByName(name, token);
     }
 
     @ApiOperation("Retrieving existing user")
     @ApiResponses({
         @ApiResponse(code = 200, message = "Successfully fetched user"),
-        @ApiResponse(code = 401, message = "Unauthorized Access")})
+        @ApiResponse(code = 401, message = "Unauthorized")})
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/example")
-    public UserDto get(HttpSession session) {
-        System.out.println("HELLO");
-        return new UserDto();
+    @GetMapping("/example/{name}")
+    public UserDto example(@PathVariable String name, @RequestHeader(value="ZKAuth-Token", required=false) String token) {
+        return userService.example(name, token);
     }
- 
 }

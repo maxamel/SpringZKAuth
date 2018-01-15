@@ -1,6 +1,7 @@
 package com.github.maxamel.server.domain.model;
 
 import com.github.maxamel.server.domain.model.constraints.UserNameUnique;
+import com.github.maxamel.server.domain.model.types.SessionStatus;
 
 import java.math.BigInteger;
 
@@ -48,13 +49,16 @@ public class User extends AuditableEntity {
 
     @NotNull
     @Column(nullable = false)
-    private BigInteger token;
+    private BigInteger passwordless;
     
     @NotNull
     @Column(nullable = false)
     private BigInteger challenge;
 
-    @NotNull
-    private boolean session;
+    @Column
+    private String sessionid;
+    
+    @Column
+    private SessionStatus sessionstatus;
 
 }

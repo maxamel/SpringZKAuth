@@ -8,9 +8,11 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import com.github.maxamel.server.domain.model.User;
+import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.domain.repositories.UserRepository;
 import com.github.maxamel.server.web.dtos.UserDto;
 
+import java.math.BigInteger;
 import java.util.Optional;
 
 
@@ -22,7 +24,7 @@ public class KafkaConsumer {
     @Autowired
     private UserRepository userRepo;
 
-    @Value("${kafka.host.topic}")
+    @Value("${kafka.host.responsetopic}")
     private String kafkaTopic;
     
     @Value("${security.crypto.generator}")
@@ -31,15 +33,21 @@ public class KafkaConsumer {
     @Value("${security.crypto.prime}")
     private String prime;
 
-    @KafkaListener(containerFactory = "userKafkaListenerContainerFactory", topics = "${kafka.host.topic}")
+    @KafkaListener(containerFactory = "userKafkaListenerContainerFactory", topics = "${kafka.host.responsetopic}")
     public void handle(UserDto dto) {
         log.info("Handling new user from Kafka {} ", dto);
-        Optional<User> user = userRepo.findByName(dto.getName());
-        if (user.isPresent())
+        Optional<User> optional = userRepo.findByName(dto.getName());
+        if (optional.isPresent())
         {
-            //BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
+            User user = optional.get();
+            BigInteger verify = user.getPasswordless().modPow(user.getChallenge(), new BigInteger(prime));
+            if (!verify.equals(dto.getPasswordless())) 
+            {
+                user.setSessionid(null);
+                user.setSessionstatus(SessionStatus.INVALIDATED);
+            }
+            else user.setSessionstatus(SessionStatus.VALIDATED);
+            userRepo.save(user);
         }
     }
-    
-
 }

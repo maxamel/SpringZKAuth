@@ -9,8 +9,10 @@ public interface UserService {
 
     UserDto register(UserDto dto);
 
-    void remove(long id);
-   
-    void removeByName(String name);
+    void remove(long id, String sessionId);
+    
+    void removeByName(String name, String sessionId);
+    
+    UserDto example(String name, String sessionId);
 
 }

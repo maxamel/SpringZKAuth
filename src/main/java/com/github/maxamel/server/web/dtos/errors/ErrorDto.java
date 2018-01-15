@@ -10,9 +10,7 @@ import lombok.Setter;
 import lombok.Singular;
 import org.springframework.data.auditing.CurrentDateTimeProvider;
 
-/**
- * @author Idan Rozenfeld
- */
+
 @ApiModel("Error")
 @Getter
 @Setter
@@ -23,6 +21,8 @@ public class ErrorDto implements Serializable {
     private Enum<?> errorCode;
 
     private String message;
+    
+    private String challenge;
 
     @Builder.Default
     private Date timestamp = CurrentDateTimeProvider.INSTANCE.getNow().getTime();

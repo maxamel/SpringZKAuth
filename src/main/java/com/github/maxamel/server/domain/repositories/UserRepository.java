@@ -21,7 +21,7 @@ public interface UserRepository {
     
     Optional<User> findByName(String name);
 
-    User save(User product);
+    User save(User user);
 
     void delete(long id);
     

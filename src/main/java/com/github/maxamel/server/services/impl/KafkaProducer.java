@@ -18,7 +18,7 @@ public class KafkaProducer {
     
     public void send(String topic, UserDto user) {
         //make sure all messages with the same id will be ordered in the same partition
-        ListenableFuture<SendResult<String, UserDto>> future = kafkaTemplate.send(topic, user);
+        ListenableFuture<SendResult<String, UserDto>> future = kafkaTemplate.send(topic, user.getId().intValue() ,user);
 
         // register a callback with the listener to receive the result of the send
         // asynchronously
@@ -31,7 +31,7 @@ public class KafkaProducer {
 
             @Override
             public void onFailure(Throwable ex) {
-
+                
             }
         });
 

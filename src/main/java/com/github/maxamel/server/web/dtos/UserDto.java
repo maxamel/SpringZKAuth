@@ -1,5 +1,6 @@
 package com.github.maxamel.server.web.dtos;
 
+import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.web.dtos.audit.AuditableDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -38,10 +39,15 @@ public class UserDto extends AuditableDto {
 
     @ApiModelProperty(required = true)
     @NotNull
-    private BigInteger token;
+    private BigInteger passwordless;
+
+    @ApiModelProperty(required = true)
+    @NotEmpty
+    private BigInteger challenge;
+    
+    private String sessionid;
     
     @ApiModelProperty(required = true)
-    @NotNull
-    private BigInteger challenge;
-
+    @NotEmpty
+    private SessionStatus sessionstatus;
 }

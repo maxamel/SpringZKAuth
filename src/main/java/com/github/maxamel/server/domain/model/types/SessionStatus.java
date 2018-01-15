@@ -7,20 +7,20 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 /**
- * @author Idan Rozenfeld
+ * @author Max Amelchenko
  */
-public enum ProductCategory implements IdentifierType<Integer> {
-    GAME(1), CLOTHING(2);
+public enum SessionStatus implements IdentifierType<Integer> {
+    VALIDATED(1), WAITING(2), INVALIDATED(3);
 
     private final int id;
 
-    ProductCategory(int id) {
+    SessionStatus(int id) {
         this.id = id;
     }
 
-    public static ProductCategory byValue(int value) {
+    public static SessionStatus byValue(int value) {
         if (Objects.nonNull(value)) {
-            return EnumUtils.getByValue(ProductCategory.class, value);
+            return EnumUtils.getByValue(SessionStatus.class, value);
         }
 
         return null;
@@ -32,10 +32,10 @@ public enum ProductCategory implements IdentifierType<Integer> {
     }
 
     @Converter(autoApply = true)
-    public static class ProductCategoryConverter implements AttributeConverter<ProductCategory, Integer> {
+    public static class ProductCategoryConverter implements AttributeConverter<SessionStatus, Integer> {
 
         @Override
-        public Integer convertToDatabaseColumn(ProductCategory attribute) {
+        public Integer convertToDatabaseColumn(SessionStatus attribute) {
             if (Objects.nonNull(attribute)) {
                 return attribute.getValue();
             }
@@ -43,9 +43,9 @@ public enum ProductCategory implements IdentifierType<Integer> {
         }
 
         @Override
-        public ProductCategory convertToEntityAttribute(Integer dbData) {
+        public SessionStatus convertToEntityAttribute(Integer dbData) {
             if (Objects.nonNull(dbData)) {
-                return ProductCategory.byValue(dbData);
+                return SessionStatus.byValue(dbData);
             }
             return null;
         }

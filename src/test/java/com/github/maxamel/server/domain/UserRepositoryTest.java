@@ -32,13 +32,13 @@ public class UserRepositoryTest {
     public void findOneShouldSuccessTest() {
         User persist = entityManager.persist(User.builder()
                 .name("John")
-                .token(new BigInteger("7896324669876116"))
+                .passwordless(new BigInteger("7896324669876116"))
                 .build());
 
         Optional<User> user = repository.findOne(persist.getId());
         assertTrue(user.isPresent());
         assertThat(user.get().getName(), is(equalTo("John")));
-        assertThat(user.get().getToken(), is(equalTo(new BigInteger("7896324669876116"))));
+        assertThat(user.get().getPasswordless(), is(equalTo(new BigInteger("7896324669876116"))));
     }
 
 }

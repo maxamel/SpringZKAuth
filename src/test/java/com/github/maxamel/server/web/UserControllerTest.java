@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -27,7 +28,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,18 +52,19 @@ public class UserControllerTest {
     @Test
     public void registerSuccess() throws Exception {
         UserDto request = UserDto.builder()
+                .id(1L)
                 .name("John")
-                .token(new BigInteger("49663222554763"))
+                .passwordless(new BigInteger("49663222554763"))
                 .build();
 
         UserDto result = UserDto.builder()
                 .id(1L)
                 .name("John")
-                .token(new BigInteger("49663222554763"))
+                .passwordless(new BigInteger("49663222554763"))
                 .build();
 
         when(service.register(any(UserDto.class))).thenReturn(result);
-        mvc.perform(post("/users")
+        mvc.perform(put("/users")
                 .content(writer.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -81,13 +82,13 @@ public class UserControllerTest {
     public void registerValidationFailedUniqueName() throws Exception {
         UserDto request = UserDto.builder()
                 .name("John")
-                .token(new BigInteger("2324431211357"))
+                .passwordless(new BigInteger("2324431211357"))
                 .build();
 
         when(service.register(any(UserDto.class)))
                 .thenThrow(new DataIntegrityViolationException("",
                         new ConstraintViolationException("", null, UserNameUnique.CONSTRAINT_NAME)));
-        mvc.perform(post("/users")
+        mvc.perform(put("/users")
                 .content(writer.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -105,10 +106,10 @@ public class UserControllerTest {
     public void catalogueValidationFailedWithEmptyName() throws Exception {
         UserDto request = UserDto.builder()
                 .name("")
-                .token(new BigInteger("2324431211357"))
+                .passwordless(new BigInteger("2324431211357"))
                 .build();
 
-        mvc.perform(post("/users")
+        mvc.perform(put("/users")
                 .content(writer.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
