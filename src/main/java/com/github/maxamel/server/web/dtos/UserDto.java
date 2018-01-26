@@ -42,7 +42,6 @@ public class UserDto extends AuditableDto {
     private BigInteger passwordless;
 
     @ApiModelProperty(required = true)
-    @NotEmpty
     private BigInteger challenge;
     
     private String sessionid;

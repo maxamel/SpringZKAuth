@@ -5,13 +5,18 @@ import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import org.springframework.web.client.RestTemplate;
+
 public class ZKClient{
 
     private String[] commands = {"PUT","GET","DELETE"};
     
+    private static RestTemplate rest;
+    
     public static void main(String [] args)
     {
         Scanner scanner = new Scanner( System.in );
+        rest = new RestTemplate();
         while (true)
         {      
             System.out.print(">");
@@ -23,8 +28,14 @@ public class ZKClient{
             String url = list.get(1);
             String json = list.subList(2, list.size()).stream().collect(Collectors.joining());
             
+            if (command.equalsIgnoreCase("exit")) break;
+
             System.out.println(command + url + json);
         }
+        
+        
+        scanner.close();
     }
-
+    
+   
 }

@@ -16,7 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,7 +44,7 @@ public class UserController {
             @ApiResponse(code = 201, message = "Successfully registered user"),
             @ApiResponse(code = 428, message = "Invalid user info", response = ErrorDto.class)})
     @ResponseStatus(code = HttpStatus.CREATED)
-    @PutMapping
+    @PostMapping
     public UserDto register(@ApiParam(value = "User data", name = "User",required = true) @Validated @RequestBody UserDto productDto) {
         return userService.register(productDto);
     }
@@ -64,7 +64,7 @@ public class UserController {
         @ApiResponse(code = 200, message = "Successfully fetched user"),
         @ApiResponse(code = 401, message = "Unauthorized")})
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/example/{name}")
+    @GetMapping("/{name}")
     public UserDto example(@PathVariable String name, @RequestHeader(value="ZKAuth-Token", required=false) String token) {
         return userService.example(name, token);
     }
