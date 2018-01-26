@@ -19,7 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -64,14 +64,14 @@ public class UserControllerTest {
                 .build();
 
         when(service.register(any(UserDto.class))).thenReturn(result);
-        mvc.perform(put("/users")
+        mvc.perform(post("/users")
                 .content(writer.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(equalTo(1))))
                 .andExpect(jsonPath("$.name", is(equalTo("John"))))
-                .andExpect(jsonPath("$.token", is(equalTo(new BigInteger("49663222554763")))));
+                .andExpect(jsonPath("$.passwordless", is(equalTo(new BigInteger("49663222554763").longValue()))));
 
         verify(service, times(1)).register(any(UserDto.class));
         verifyNoMoreInteractions(service);
@@ -88,7 +88,7 @@ public class UserControllerTest {
         when(service.register(any(UserDto.class)))
                 .thenThrow(new DataIntegrityViolationException("",
                         new ConstraintViolationException("", null, UserNameUnique.CONSTRAINT_NAME)));
-        mvc.perform(put("/users")
+        mvc.perform(post("/users")
                 .content(writer.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -109,7 +109,7 @@ public class UserControllerTest {
                 .passwordless(new BigInteger("2324431211357"))
                 .build();
 
-        mvc.perform(put("/users")
+        mvc.perform(post("/users")
                 .content(writer.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())

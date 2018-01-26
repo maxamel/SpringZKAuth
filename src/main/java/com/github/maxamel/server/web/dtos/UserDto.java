@@ -41,12 +41,12 @@ public class UserDto extends AuditableDto {
     @NotNull
     private BigInteger passwordless;
 
-    @ApiModelProperty(required = true)
+    @ApiModelProperty(required = false)
     private BigInteger challenge;
     
+    @ApiModelProperty(required = false)
     private String sessionid;
     
-    @ApiModelProperty(required = true)
-    @NotEmpty
+    @ApiModelProperty(required = false)
     private SessionStatus sessionstatus;
 }

@@ -2,14 +2,13 @@ Prerequisites:
 
 nodejs
 
-npm install request
+h2 database
 
 Client-side protocol:
 
-COMMAND url
+COMMANDS: 
 
-EXAMPLES: 
-        GET IP:port name
-        POST IP:port {name:"name","passwordless":"F4D33E24A4680DA226D88"}
-        DELETE IP:port name
+        REGISTER IP:port name
+        REMOVE IP:port name
+        FETCH IP:port name
 
