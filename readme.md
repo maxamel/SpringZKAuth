@@ -2,6 +2,8 @@ Prerequisites:
 
 nodejs
 
+npm install big-integer
+
 h2 database
 
 Client-side protocol:

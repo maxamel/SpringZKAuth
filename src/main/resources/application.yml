@@ -9,7 +9,7 @@ spring:
     show-sql: false
 
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
       use-new-id-generator-mappings: true
       naming:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl

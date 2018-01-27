@@ -6,7 +6,6 @@ import com.github.maxamel.server.services.UserService;
 import com.github.rozidan.springboot.logger.Loggable;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
@@ -45,8 +44,8 @@ public class UserController {
             @ApiResponse(code = 428, message = "Invalid user info", response = ErrorDto.class)})
     @ResponseStatus(code = HttpStatus.CREATED)
     @PostMapping
-    public UserDto register(@ApiParam(value = "User data", name = "User",required = true) @Validated @RequestBody UserDto productDto) {
-        return userService.register(productDto);
+    public UserDto register(@Validated @RequestBody UserDto productDto) {
+    	return userService.register(productDto);
     }
 
     @ApiOperation("Delete user")

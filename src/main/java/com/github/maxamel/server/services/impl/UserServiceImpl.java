@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto example(String name, String sessionId) {        
         User user = repository.findByName(name).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + name, 1));
-        if (user.getSessionid().equals(sessionId)) 
+        if (user.getSessionid() != null && user.getSessionid().equals(sessionId)) 
         {
             UserDto dto = mapper.map(user, UserDto.class);
             return dto;
@@ -96,9 +96,10 @@ public class UserServiceImpl implements UserService {
             SecureRandom random = new SecureRandom();
             BigInteger bigint =  new BigInteger(256, random);
             user.setChallenge(bigint);
+            user.setSessionstatus(SessionStatus.WAITING);
             repository.save(user);  
         }
-        BigInteger power = new BigInteger(generator).modPow(user.getChallenge(), new BigInteger(prime)); 
+        BigInteger power = new BigInteger(generator,16).modPow(user.getChallenge(), new BigInteger(prime,16)); 
         scheduleAuthTask(user);
         throw new AccessDeniedException(""+power);
     }

@@ -51,8 +51,7 @@ public class User extends AuditableEntity {
     @Column(nullable = false)
     private BigInteger passwordless;
     
-    @NotNull
-    @Column(nullable = false)
+    @Column
     private BigInteger challenge;
 
     @Column
