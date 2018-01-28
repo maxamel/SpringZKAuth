@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS user (
   last_modified_by   VARCHAR(255),
   last_modified_date DATETIME,
   `name`             VARCHAR(255)		NOT NULL,
-  `passwordless`     BIGINT             NOT NULL,
-  `challenge`        BIGINT    
+  `passwordless`     VARCHAR(255),      NOT NULL,
+  `challenge`        VARCHAR(255),  
   `sessionid`        VARCHAR(255),
   `sessionstatus`    VARCHAR(255),
   PRIMARY KEY (id),

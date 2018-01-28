@@ -1,6 +1,6 @@
 package com.github.maxamel.server.config;
 
-import com.github.maxamel.server.ZAuthApplication;
+import com.github.maxamel.server.ZKAuthApplication;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +30,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName("Template")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage(ZAuthApplication.class.getPackage().getName()))
+                .apis(RequestHandlerSelectors.basePackage(ZKAuthApplication.class.getPackage().getName()))
                 .paths(PathSelectors.any())
                 .build()
                 .apiInfo(getApiInfo());

@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto example(String name, String sessionId) {        
+    public UserDto fetch(String name, String sessionId) {        
         User user = repository.findByName(name).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + name, 1));
         if (user.getSessionid() != null && user.getSessionid().equals(sessionId)) 
         {
@@ -90,20 +90,22 @@ public class UserServiceImpl implements UserService {
         return null;
     }
     
+    @Transactional
     private void throwChallengedException(User user) {
         if (user.getChallenge() == null)
         {
             SecureRandom random = new SecureRandom();
             BigInteger bigint =  new BigInteger(256, random);
-            user.setChallenge(bigint);
+            user.setChallenge(bigint.toString());
             user.setSessionstatus(SessionStatus.WAITING);
             repository.save(user);  
         }
-        BigInteger power = new BigInteger(generator,16).modPow(user.getChallenge(), new BigInteger(prime,16)); 
+        BigInteger power = new BigInteger(generator,16).modPow(new BigInteger(user.getChallenge()), new BigInteger(prime,16)); 
         scheduleAuthTask(user);
         throw new AccessDeniedException(""+power);
     }
 
+    @Transactional
     private void scheduleAuthTask(User user) {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -121,7 +123,7 @@ public class UserServiceImpl implements UserService {
                 {
                     SecureRandom random = new SecureRandom();
                     BigInteger bigint =  new BigInteger(256, random);
-                    user.setChallenge(bigint);
+                    user.setChallenge(bigint.toString());
                     user.setSessionstatus(SessionStatus.WAITING);
                     repository.save(user);  
                     UserDto dto = mapper.map(user, UserDto.class);

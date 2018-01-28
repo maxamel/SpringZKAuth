@@ -3,8 +3,6 @@ package com.github.maxamel.server.domain.model;
 import com.github.maxamel.server.domain.model.constraints.UserNameUnique;
 import com.github.maxamel.server.domain.model.types.SessionStatus;
 
-import java.math.BigInteger;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -49,10 +47,10 @@ public class User extends AuditableEntity {
 
     @NotNull
     @Column(nullable = false)
-    private BigInteger passwordless;
+    private String passwordless;
     
     @Column
-    private BigInteger challenge;
+    private String challenge;
 
     @Column
     private String sessionid;

@@ -64,7 +64,7 @@ public class UserController {
         @ApiResponse(code = 401, message = "Unauthorized")})
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{name}")
-    public UserDto example(@PathVariable String name, @RequestHeader(value="ZKAuth-Token", required=false) String token) {
-        return userService.example(name, token);
+    public UserDto fetch(@PathVariable String name, @RequestHeader(value="ZKAuth-Token", required=false) String token) {
+        return userService.fetch(name, token);
     }
 }

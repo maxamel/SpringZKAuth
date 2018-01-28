@@ -40,7 +40,10 @@ public class KafkaConsumer {
         if (optional.isPresent())
         {
             User user = optional.get();
-            BigInteger verify = user.getPasswordless().modPow(user.getChallenge(), new BigInteger(prime));
+            BigInteger password = new BigInteger(user.getPasswordless()); 
+            BigInteger challenge = new BigInteger(user.getChallenge());
+        
+            BigInteger verify = password.modPow(challenge, new BigInteger(prime));
             if (!verify.equals(dto.getPasswordless())) 
             {
                 user.setSessionid(null);

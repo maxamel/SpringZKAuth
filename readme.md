@@ -3,6 +3,7 @@ Prerequisites:
 nodejs
 
 npm install big-integer
+npm install stack-lifo
 
 h2 database
 

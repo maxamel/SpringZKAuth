@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.math.BigInteger;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -32,13 +31,13 @@ public class UserRepositoryTest {
     public void findOneShouldSuccessTest() {
         User persist = entityManager.persist(User.builder()
                 .name("John")
-                .passwordless(new BigInteger("7896324669876116"))
+                .passwordless("7896324669876116")
                 .build());
 
         Optional<User> user = repository.findOne(persist.getId());
         assertTrue(user.isPresent());
         assertThat(user.get().getName(), is(equalTo("John")));
-        assertThat(user.get().getPasswordless(), is(equalTo(new BigInteger("7896324669876116"))));
+        assertThat(user.get().getPasswordless(), is(equalTo("7896324669876116")));
     }
 
 }

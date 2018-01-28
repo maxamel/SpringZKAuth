@@ -13,6 +13,6 @@ public interface UserService {
     
     void removeByName(String name, String sessionId);
     
-    UserDto example(String name, String sessionId);
+    UserDto fetch(String name, String sessionId);
 
 }
