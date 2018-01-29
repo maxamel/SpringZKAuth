@@ -10,7 +10,7 @@ import javax.persistence.Converter;
  * @author Max Amelchenko
  */
 public enum SessionStatus implements IdentifierType<Integer> {
-    VALIDATED(1), WAITING(2), INVALIDATED(3);
+    VALIDATED(1), WAITING(2), INVALIDATED(3), INITIATING(4);
 
     private final int id;
 

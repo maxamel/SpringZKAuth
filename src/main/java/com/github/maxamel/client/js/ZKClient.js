@@ -80,7 +80,7 @@ function processCommand(string)
 			//heads["transfer-encoding"] = '';
 		    break;
 		default:
-		    condole.log("Unknown command");
+		    console.log("Unknown command");
 		    return;
 	}
     x = result[1].split(':');
@@ -106,14 +106,15 @@ function sendRequestOptions(options, body)
     console.log(`HEADERS: ${JSON.stringify(r1.headers)}`);
       	  r1.on('data', function(chunk){
       	    response = JSON.parse(chunk);
-      	    console.log("Got chunk " + response + " message: " + response["message"]);
+      	    console.log("Got chunk " + chunk + " message: " + response["message"]);
     	    
       	    if (response["message"] == "Unauthorized") 
       	    {
       	        challenge = bigInt(response["challenge"], 10);
       	    	mod = bigInt(N,16);
       	    	answer = challenge.modPow(cache.password, mod);
-      	    	options.headers["ZKAuth-Token"] = answer;
+      	    	options.headers["ZKAuth-Token"] = answer.toString();
+      	    	console.log("token " + answer.toString())
       	    	var ret = http.request(options, function(r2){
       	      	  r2.on('data', function(chunk){
       	      	    console.log("Got chunk " + chunk);

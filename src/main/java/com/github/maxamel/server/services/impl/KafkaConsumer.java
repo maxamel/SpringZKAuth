@@ -40,13 +40,12 @@ public class KafkaConsumer {
         if (optional.isPresent())
         {
             User user = optional.get();
-            BigInteger password = new BigInteger(user.getPasswordless()); 
-            BigInteger challenge = new BigInteger(user.getChallenge());
+            BigInteger passwordless = new BigInteger(user.getPasswordless()); 
+            BigInteger secret = new BigInteger(user.getServerSecret());
         
-            BigInteger verify = password.modPow(challenge, new BigInteger(prime));
+            BigInteger verify = passwordless.modPow(secret, new BigInteger(prime));
             if (!verify.equals(dto.getPasswordless())) 
             {
-                user.setSessionid(null);
                 user.setSessionstatus(SessionStatus.INVALIDATED);
             }
             else user.setSessionstatus(SessionStatus.VALIDATED);

@@ -1,6 +1,8 @@
 package com.github.maxamel.server.services.impl;
 
+import com.github.maxamel.server.web.controllers.UserController;
 import com.github.maxamel.server.web.dtos.UserDto;
+import com.github.rozidan.springboot.logger.Loggable;
 import com.github.maxamel.server.domain.model.User;
 import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.domain.repositories.UserRepository;
@@ -8,10 +10,14 @@ import com.github.maxamel.server.services.UserService;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -23,11 +29,14 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Max Amelchenko
  */
 @Service
+@Loggable(ignore = Exception.class)
 public class UserServiceImpl implements UserService {
 
     private final ModelMapper mapper;
 
     private final UserRepository repository;
+    
+    private Map<Long, Timer> kafkaTiming = new HashMap<>();
     
     @Value("${security.crypto.generator}")
     private String generator;
@@ -64,50 +73,82 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void remove(long id, String sessionId) {
         User user = repository.findOne(id).orElseThrow(() -> new EmptyResultDataAccessException("No user found with id: " + id, 1));
-        if (user.getSessionid().equals(sessionId)) repository.delete(id);
-        else 
+        if (verify(user,sessionId)) repository.delete(id);
+        else
+        {
             throwChallengedException(user);
+        }
     }
 
     @Override
     @Transactional
     public void removeByName(String name, String sessionId) {
         User user = repository.findByName(name).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + name, 1));
-        if (user.getSessionid().equals(sessionId)) repository.deleteByName(name);
-        else throwChallengedException(user);
+        if (verify(user,sessionId)) repository.deleteByName(name);
+        else 
+        {
+            throwChallengedException(user);
+        }
     }
 
     @Override
     @Transactional
     public UserDto fetch(String name, String sessionId) {        
         User user = repository.findByName(name).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + name, 1));
-        if (user.getSessionid() != null && user.getSessionid().equals(sessionId)) 
+        
+        if (user.getServerSecret()!=null && verify(user,sessionId)) 
         {
             UserDto dto = mapper.map(user, UserDto.class);
             return dto;
         }
-        else throwChallengedException(user);
+        else 
+        {
+            throwChallengedException(user);
+        }
         return null;
     }
     
     @Transactional
+    private boolean verify(User user,String response)
+    {
+        BigInteger password = new BigInteger(user.getPasswordless()); 
+        BigInteger secret = new BigInteger(user.getServerSecret());
+    
+        BigInteger verify = password.modPow(secret, new BigInteger(prime));
+        
+        if (!verify.equals(response)) 
+        {
+            user.setSessionstatus(SessionStatus.INVALIDATED);
+            kafkaTiming.get(user.getId()).cancel();
+            return false;
+        }
+        else 
+        {
+            SessionStatus status = user.getSessionstatus();
+            user.setSessionstatus(SessionStatus.VALIDATED);
+            if (status.equals(SessionStatus.INITIATING)) scheduleAuthTask(user);
+        }
+        return true;
+    }
+    
+    @Transactional
     private void throwChallengedException(User user) {
-        if (user.getChallenge() == null)
+        if (user.getServerSecret() == null)
         {
             SecureRandom random = new SecureRandom();
             BigInteger bigint =  new BigInteger(256, random);
-            user.setChallenge(bigint.toString());
-            user.setSessionstatus(SessionStatus.WAITING);
+            user.setServerSecret(bigint.toString());
+            user.setSessionstatus(SessionStatus.INITIATING);
             repository.save(user);  
         }
-        BigInteger power = new BigInteger(generator,16).modPow(new BigInteger(user.getChallenge()), new BigInteger(prime,16)); 
-        scheduleAuthTask(user);
+        BigInteger power = new BigInteger(generator,16).modPow(new BigInteger(user.getServerSecret()), new BigInteger(prime,16)); 
         throw new AccessDeniedException(""+power);
     }
 
     @Transactional
     private void scheduleAuthTask(User user) {
         Timer timer = new Timer();
+        kafkaTiming.put(user.getId(), timer);
         timer.schedule(new TimerTask() {
             
             @Override
@@ -115,7 +156,6 @@ public class UserServiceImpl implements UserService {
                 if (user.getSessionstatus().equals(SessionStatus.WAITING)) 
                 {
                     user.setSessionstatus(SessionStatus.INVALIDATED);
-                    user.setSessionid(null);
                     repository.save(user); 
                     timer.cancel();
                 }
@@ -123,7 +163,7 @@ public class UserServiceImpl implements UserService {
                 {
                     SecureRandom random = new SecureRandom();
                     BigInteger bigint =  new BigInteger(256, random);
-                    user.setChallenge(bigint.toString());
+                    user.setServerSecret(bigint.toString());
                     user.setSessionstatus(SessionStatus.WAITING);
                     repository.save(user);  
                     UserDto dto = mapper.map(user, UserDto.class);

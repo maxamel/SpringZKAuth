@@ -50,10 +50,7 @@ public class User extends AuditableEntity {
     private String passwordless;
     
     @Column
-    private String challenge;
-
-    @Column
-    private String sessionid;
+    private String serverSecret;
     
     @Column
     private SessionStatus sessionstatus;
