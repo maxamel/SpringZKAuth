@@ -28,13 +28,13 @@ public class UserMappingTest {
         UserDto dto = UserDto.builder()
                 .id(1L)
                 .name("John")
-                .passwordless(new BigInteger("455632178871263"))
+                .passwordless("455632178871263")
                 .build();
 
         User result = mapper.map(dto, User.class);
 
         assertThat(result.getId(), is(equalTo(1L)));
         assertThat(result.getName(), is(equalTo("John")));
-        assertThat(result.getPasswordless(), is(equalTo(new BigInteger("455632178871263"))));
+        assertThat(result.getPasswordless(), is(equalTo("455632178871263")));
     }
 }

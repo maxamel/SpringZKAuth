@@ -6,7 +6,6 @@ import com.github.maxamel.server.web.dtos.audit.AuditableDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.math.BigInteger;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,11 +39,11 @@ public class UserDto extends AuditableDto {
 
     @ApiModelProperty(required = true)
     @NotNull
-    private BigInteger passwordless;
+    private String passwordless;
 
     @ApiModelProperty(required = false)
     @JsonIgnore
-    private BigInteger serverSecret;
+    private String serverSecret;
     
     @ApiModelProperty(required = false)
     private SessionStatus sessionstatus;

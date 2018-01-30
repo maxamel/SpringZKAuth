@@ -56,5 +56,4 @@ management:
 kafka:
   host:
     url: "172.30.141.117:9092"
-    responsetopic: "response"
     challengetopic: "challenge"

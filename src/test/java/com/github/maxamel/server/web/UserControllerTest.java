@@ -54,13 +54,13 @@ public class UserControllerTest {
         UserDto request = UserDto.builder()
                 .id(1L)
                 .name("John")
-                .passwordless(new BigInteger("49663222554763"))
+                .passwordless("49663222554763")
                 .build();
 
         UserDto result = UserDto.builder()
                 .id(1L)
                 .name("John")
-                .passwordless(new BigInteger("49663222554763"))
+                .passwordless("49663222554763")
                 .build();
 
         when(service.register(any(UserDto.class))).thenReturn(result);
@@ -82,7 +82,7 @@ public class UserControllerTest {
     public void registerValidationFailedUniqueName() throws Exception {
         UserDto request = UserDto.builder()
                 .name("John")
-                .passwordless(new BigInteger("2324431211357"))
+                .passwordless("2324431211357")
                 .build();
 
         when(service.register(any(UserDto.class)))
@@ -106,7 +106,7 @@ public class UserControllerTest {
     public void catalogueValidationFailedWithEmptyName() throws Exception {
         UserDto request = UserDto.builder()
                 .name("")
-                .passwordless(new BigInteger("2324431211357"))
+                .passwordless("2324431211357")
                 .build();
 
         mvc.perform(post("/users")
