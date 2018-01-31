@@ -4,7 +4,6 @@ import com.github.maxamel.server.web.dtos.UserDto;
 import com.github.maxamel.server.domain.model.User;
 import com.github.rozidan.springboot.modelmapper.WithModelMapper;
 
-import java.math.BigInteger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.modelmapper.ModelMapper;

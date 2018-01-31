@@ -9,27 +9,27 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
-import com.github.maxamel.server.web.dtos.UserDto;
+import com.github.maxamel.server.web.dtos.ChallengeDto;
 import com.github.rozidan.springboot.logger.Loggable;
 
 @Component
 public class KafkaProducer {
 
     @Autowired
-    private KafkaTemplate<String, UserDto> kafkaTemplate;
+    private KafkaTemplate<String, ChallengeDto> kafkaTemplate;
 
     @Loggable
-    public void send(String topic, UserDto user) {
+    public void send(String topic, ChallengeDto chal) {
         //make sure all messages with the same id will be ordered in the same partition
-        ListenableFuture<SendResult<String, UserDto>> future = kafkaTemplate.send(topic, user);
+        ListenableFuture<SendResult<String, ChallengeDto>> future = kafkaTemplate.send(topic, chal);
         Logger log = LoggerFactory.getLogger(KafkaProducer.class);
-        log.info("Produced to Kafka!");
+        log.debug("Produced challenge to Kafka! " + chal.getChallenge());
         // register a callback with the listener to receive the result of the send
         // asynchronously
-        future.addCallback(new ListenableFutureCallback<SendResult<String, UserDto>>() {
+        future.addCallback(new ListenableFutureCallback<SendResult<String, ChallengeDto>>() {
 
             @Override
-            public void onSuccess(SendResult<String, UserDto> result) {
+            public void onSuccess(SendResult<String, ChallengeDto> result) {
                
             }
 

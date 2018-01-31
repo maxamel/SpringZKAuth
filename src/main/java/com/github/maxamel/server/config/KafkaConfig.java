@@ -12,7 +12,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
-import com.github.maxamel.server.web.dtos.UserDto;
+import com.github.maxamel.server.web.dtos.ChallengeDto;
 
 @EnableKafka
 @Configuration
@@ -31,12 +31,12 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ProducerFactory<String, UserDto> producerFactory() {
+    public ProducerFactory<String, ChallengeDto> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean
-    public KafkaTemplate<String, UserDto> kafkaTemplate() {
+    public KafkaTemplate<String, ChallengeDto> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }
