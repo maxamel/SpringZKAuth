@@ -195,11 +195,11 @@ public class UserServiceImpl implements UserService {
                 {
                     Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
                     log.debug("Inactivity threshold reached! Invalidating..." + user.getName());
+                    challengeTimer.cancel();
                     user.setSessionstatus(SessionStatus.INVALIDATED);
                     user.setServerSecret(null);
-                    repository.save(user); 
+                    repository.save(user);
                     inactTimer.cancel();
-                    challengeTimer.cancel();
                 }
                 else 
                 {
