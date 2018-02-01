@@ -15,11 +15,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -28,11 +32,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.math.BigInteger;
 
 @RunWith(SpringRunner.class)
 @ComponentScan(basePackageClasses = UserNameUnique.class)
@@ -71,7 +75,7 @@ public class UserControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(equalTo(1))))
                 .andExpect(jsonPath("$.name", is(equalTo("John"))))
-                .andExpect(jsonPath("$.passwordless", is(equalTo(new BigInteger("49663222554763").longValue()))));
+                .andExpect(jsonPath("$.passwordless", is(equalTo("49663222554763"))));
 
         verify(service, times(1)).register(any(UserDto.class));
         verifyNoMoreInteractions(service);
@@ -81,6 +85,7 @@ public class UserControllerTest {
     @Test
     public void registerValidationFailedUniqueName() throws Exception {
         UserDto request = UserDto.builder()
+                .id(1L)
                 .name("John")
                 .passwordless("2324431211357")
                 .build();
@@ -103,27 +108,95 @@ public class UserControllerTest {
     }
 
     @Test
-    public void catalogueValidationFailedWithEmptyName() throws Exception {
-        UserDto request = UserDto.builder()
-                .name("")
+    public void fetchSuccess() throws Exception {
+        UserDto result = UserDto.builder()
+                .id(1L)
+                .name("Mike")
                 .passwordless("2324431211357")
                 .build();
-
-        mvc.perform(post("/users")
-                .content(writer.writeValueAsString(request))
+        
+        when(service.fetch(any(String.class), any(String.class))).thenReturn(result);
+        mvc.perform(get("/users/Mike")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.errorCode", is(equalTo(ErrorCodes.DATA_VALIDATION.toString()))))
-                .andExpect(jsonPath("$.errors").isArray())
-                .andExpect(jsonPath("$.errors[0].fieldName", is(equalTo("name"))))
-                .andExpect(jsonPath("$.errors[0].errorCode", is(equalTo("NotEmpty"))))
-                .andExpect(jsonPath("$.errors[0].rejectedValue", is(equalTo(""))))
-                .andExpect(jsonPath("$.errors[0].params").isArray())
-                .andExpect(jsonPath("$.errors[0].params").isEmpty());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(equalTo(1))))
+                .andExpect(jsonPath("$.name", is(equalTo("Mike"))))
+                .andExpect(jsonPath("$.passwordless", is(equalTo("2324431211357"))));
 
+        verify(service, times(1)).fetch(any(String.class), any(String.class));
         verifyNoMoreInteractions(service);
     }
 
-  
+    @Test
+    public void fetchNotFound() throws Exception {
+        when(service.fetch(any(String.class), any(String.class)))
+        .thenThrow(new EmptyResultDataAccessException("Not found",0));
+        mvc.perform(get("/users/Mike")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode", is(equalTo(ErrorCodes.NOT_FOUND.toString()))))
+                .andExpect(jsonPath("$.message", is(equalTo("Not found"))));
+        
+        verify(service, times(1)).fetch(any(String.class), any(String.class));
+        verifyNoMoreInteractions(service);
+    }
+    
+    @Test
+    public void fetchWrongSessionId() throws Exception {
+        when(service.fetch(any(String.class), any(String.class)))
+        .thenThrow(new AccessDeniedException("134FF26B81CD285"));
+        mvc.perform(get("/users/Mike")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errorCode", is(equalTo(ErrorCodes.UNAUTHORIZED.toString()))))
+                .andExpect(jsonPath("$.challenge", is(equalTo("134FF26B81CD285"))))
+                .andExpect(jsonPath("$.message", is(equalTo("Unauthorized"))));
+        
+        verify(service, times(1)).fetch(any(String.class), any(String.class));
+        verifyNoMoreInteractions(service);
+    }
+    
+    @Test
+    public void removeSuccess() throws Exception {
+        doNothing().when(service).removeByName(any(String.class), any(String.class));
+        mvc.perform(delete("/users/Mike")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        verify(service, times(1)).removeByName(any(String.class), any(String.class));
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    public void removeNotFound() throws Exception {
+        doThrow(new EmptyResultDataAccessException("Not found",0)).when(service).removeByName(any(String.class), any(String.class));
+        mvc.perform(delete("/users/Mike")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode", is(equalTo(ErrorCodes.NOT_FOUND.toString()))))
+                .andExpect(jsonPath("$.message", is(equalTo("Not found"))));
+        
+        verify(service, times(1)).removeByName(any(String.class), any(String.class));
+        verifyNoMoreInteractions(service);
+    }
+    
+    @Test
+    public void removeWrongSessionId() throws Exception {
+        doThrow(new AccessDeniedException("134FF26B81CD285")).when(service).removeByName(any(String.class), any(String.class));
+        mvc.perform(delete("/users/Mike")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errorCode", is(equalTo(ErrorCodes.UNAUTHORIZED.toString()))))
+                .andExpect(jsonPath("$.challenge", is(equalTo("134FF26B81CD285"))))
+                .andExpect(jsonPath("$.message", is(equalTo("Unauthorized"))));
+        
+        verify(service, times(1)).removeByName(any(String.class), any(String.class));
+        verifyNoMoreInteractions(service);
+    }
 }

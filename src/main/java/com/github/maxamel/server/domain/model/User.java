@@ -53,6 +53,6 @@ public class User extends AuditableEntity {
     private String serverSecret;
     
     @Column
-    private SessionStatus sessionstatus;
+    private SessionStatus sessionStatus;
 
 }

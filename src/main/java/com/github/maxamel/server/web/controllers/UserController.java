@@ -51,6 +51,7 @@ public class UserController {
     @ApiOperation("Delete user")
     @ApiResponses({
             @ApiResponse(code = 200, message = "User has been removed"),
+            @ApiResponse(code = 401, message = "Unauthorized Access"),
             @ApiResponse(code = 404, message = "User not found")})
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{name}")
@@ -61,7 +62,8 @@ public class UserController {
     @ApiOperation("Retrieving existing user")
     @ApiResponses({
         @ApiResponse(code = 200, message = "Successfully fetched user"),
-        @ApiResponse(code = 401, message = "Unauthorized")})
+        @ApiResponse(code = 401, message = "Unauthorized Access"),
+        @ApiResponse(code = 404, message = "User not Found")})
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{name}")
     public UserDto fetch(@PathVariable String name, @RequestHeader(value="ZKAuth-Token", required=false) String token) {

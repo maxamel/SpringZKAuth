@@ -1,5 +1,3 @@
-var TopicConsumer = require('kafka-node-topic-consumer');
-
 var http = require("http");
 var crypto = require('crypto');
 var bigInt = require("big-integer");
