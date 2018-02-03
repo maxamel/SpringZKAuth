@@ -44,10 +44,10 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
         log.info("Publishing message to kafka..." + user.getName());
         SecureRandom random = new SecureRandom();
         BigInteger bigint =  new BigInteger(256, random);
-        user.setServerSecret(bigint.toString());
+        user.setSecret(bigint.toString());
         repository.save(user);  
 
-        BigInteger power = new BigInteger(generator,16).modPow(new BigInteger(user.getServerSecret(),16), new BigInteger(prime,16)); 
+        BigInteger power = new BigInteger(generator,16).modPow(new BigInteger(user.getSecret(),16), new BigInteger(prime,16)); 
         ChallengeDto dto = new ChallengeDto(power.toString(16));
         producer.send(topic, dto);
     }
@@ -58,19 +58,19 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
     {
         Timer challengeTimer = timers.get(0);
         Timer inactTimer = timers.get(1);
-        if (user.getSessionStatus().equals(SessionStatus.WAITING)) 
+        if (user.getSstatus().equals(SessionStatus.WAITING)) 
         {
             Logger log = LoggerFactory.getLogger(ScheduleTaskService.class);
             log.info("Inactivity threshold reached! Invalidating..." + user.getName());
             challengeTimer.cancel();
-            user.setSessionStatus(SessionStatus.INVALIDATED);
-            user.setServerSecret(null);
+            user.setSstatus(SessionStatus.INVALIDATED);
+            user.setSecret(null);
             repository.save(user);
             inactTimer.cancel();
         }
         else 
         {
-            user.setSessionStatus(SessionStatus.WAITING);
+            user.setSstatus(SessionStatus.WAITING);
             repository.save(user); 
         }
     }

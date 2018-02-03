@@ -50,9 +50,9 @@ public class User extends AuditableEntity {
     private String passwordless;
     
     @Column(nullable = true, length = 600)
-    private String serverSecret;
+    private String secret;
     
     @Column
-    private SessionStatus sessionStatus;
+    private SessionStatus sstatus;
 
 }

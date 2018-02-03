@@ -43,9 +43,9 @@ public class UserDto extends AuditableDto {
 
     @ApiModelProperty(required = false)
     @JsonIgnore
-    private String serverSecret;
+    private String secret;
     
     @ApiModelProperty(required = false)
     @JsonIgnore
-    private SessionStatus sessionStatus;
+    private SessionStatus sstatus;
 }
