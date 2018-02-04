@@ -158,7 +158,6 @@ public class UserServiceImpl implements UserService {
         repository.save(user);
     }
 
-    @Transactional
     private void scheduleAuthTask(User user) {
         LinkedList<Timer> list = new LinkedList<>();
         kafkaTiming.put(user.getId(), list);

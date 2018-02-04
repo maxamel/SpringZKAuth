@@ -112,8 +112,9 @@ function sendRequestOptions(options, body)
 {
     if (solution != "") options.headers["ZKAuth-Token"] = solution.toString();
 	var req = http.request(options, function(r1){
-	      console.log('STATUS #1: ${r1.statusCode}');
 	      status1 = r1.statusCode;
+	      console.log('STATUS #1: ' + status1);
+	      
       	  r1.on('data', function(chunk){
       	    response = JSON.parse(chunk);
       	    console.log("Got chunk " + chunk + " message: " + response["message"]);
@@ -128,7 +129,7 @@ function sendRequestOptions(options, body)
       	    	console.log("token " + answer.toString())
       	    	var ret = http.request(options, function(r2){
       	    	status2 = r2.statusCode;
-      	    	console.log('STATUS #2: ${r2.statusCode}');
+      	    	console.log('STATUS #2: ' + status2);
       	      	  r2.on('data', function(chunk){
       	      	    console.log("Got chunk " + chunk);
       	      	    if (status2 == 200 || status2 == 201) spinUpKafkaConsumer();
