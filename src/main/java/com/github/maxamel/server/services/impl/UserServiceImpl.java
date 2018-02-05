@@ -1,7 +1,6 @@
 package com.github.maxamel.server.services.impl;
 
 import com.github.maxamel.server.web.dtos.UserDto;
-import com.github.rozidan.springboot.logger.Loggable;
 import com.github.maxamel.server.domain.model.User;
 import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.domain.repositories.UserRepository;
@@ -28,14 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Max Amelchenko
  */
 @Service
-@Loggable
 public class UserServiceImpl implements UserService {
 
     private final ModelMapper mapper;
 
     private final UserRepository repository;
     
-    private Map<Long, LinkedList<Timer>> kafkaTiming = new HashMap<>();
+    private final Map<Long, LinkedList<Timer>> kafkaTiming = new HashMap<>();
     
     @Value("${security.session.challengeFrequency}")
     private String chalFreq;
@@ -96,8 +94,7 @@ public class UserServiceImpl implements UserService {
         
         if (user.getSecret()!=null && verify(user,sessionId)) 
         {
-            UserDto dto = mapper.map(user, UserDto.class);
-            return dto;
+            return mapper.map(user, UserDto.class);
         }
         else 
         {
@@ -114,7 +111,17 @@ public class UserServiceImpl implements UserService {
     
         BigInteger verify = passwordless.modPow(secret, new BigInteger(prime,16));
         
-        if (!verify.toString().equals(response)) 
+        if (verify.toString().equals(response)) 
+        {
+            SessionStatus status = user.getSstatus();
+            if (!user.getSstatus().equals(SessionStatus.VALIDATED))
+            {
+                user.setSstatus(SessionStatus.VALIDATED);
+                repository.save(user);
+            }
+            if (status.equals(SessionStatus.INITIATING)) scheduleAuthTask(user);
+        }
+        else 
         {
             user.setSstatus(SessionStatus.INVALIDATED);
             user.setSecret(null);
@@ -126,16 +133,6 @@ public class UserServiceImpl implements UserService {
                     t.cancel();
             }
             return false;
-        }
-        else 
-        {
-            SessionStatus status = user.getSstatus();
-            if (!user.getSstatus().equals(SessionStatus.VALIDATED))
-            {
-                user.setSstatus(SessionStatus.VALIDATED);
-                repository.save(user);
-            }
-            if (status.equals(SessionStatus.INITIATING)) scheduleAuthTask(user);
         }
         return true;
     }
@@ -150,7 +147,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    private void generateServerSecret(User user) {
+    private void generateServerSecret(User olduser) {
+        User user = repository.findByName(olduser.getName()).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + olduser.getName(), 1));
         SecureRandom random = new SecureRandom();
         BigInteger bigint =  new BigInteger(256, random);
         user.setSecret(bigint.toString(16));
@@ -169,7 +167,7 @@ public class UserServiceImpl implements UserService {
             public void run() {
                 scheduler.publishChallenge(user);
             }
-        }, Long.valueOf(chalFreq), Long.valueOf(chalFreq));
+        }, Long.parseLong(chalFreq), Long.parseLong(chalFreq));
         
         Timer inactTimer = new Timer();
         inactTimer.scheduleAtFixedRate(new TimerTask() {
@@ -178,7 +176,7 @@ public class UserServiceImpl implements UserService {
             public void run() {
                 scheduler.handleActivity(user, list);
             }
-        }, Long.valueOf(inactThreshold), Long.valueOf(inactThreshold));
+        }, Long.parseLong(inactThreshold), Long.parseLong(inactThreshold));
         
         list.add(challengeTimer);
         list.add(inactTimer);

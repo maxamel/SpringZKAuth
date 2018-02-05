@@ -1,10 +1,20 @@
-allprojects {
-    apply plugin: 'eclipse'
-    apply plugin: 'idea'
-
-    group = 'com.github.maxamel'
-    version = '0.0.1'
+apply plugin: 'java'
+apply plugin: 'pmd'
+  pmd {
+    toolVersion='5.5.2'
+    ruleSets=["java-basic","java-imports","java-strings","java-clone","java-design"]        
 }
+apply plugin: 'findbugs'
+  findbugs {
+    sourceSets = [sourceSets.main]
+    toolVersion = "3.0.1"
+}
+
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+    
+group = 'com.github.maxamel'
+version = '0.0.1'
 
 buildscript {
     repositories {

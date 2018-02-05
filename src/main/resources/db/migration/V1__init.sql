@@ -1,9 +1,7 @@
 CREATE TABLE IF NOT EXISTS user (
   `id`               BIGINT
   created_by         VARCHAR(255),
-  created_date       DATETIME,
   last_modified_by   VARCHAR(255),
-  last_modified_date DATETIME,
   `name`             VARCHAR(255)		NOT NULL,
   `passwordless`     VARCHAR(600),      NOT NULL,
   `secret`     VARCHAR(600),  

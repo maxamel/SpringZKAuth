@@ -1,5 +1,7 @@
 package com.github.maxamel.server.services.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -26,12 +28,14 @@ public class KafkaProduceServiceImpl {
 
             @Override
             public void onSuccess(SendResult<String, ChallengeDto> result) {
-               
+                Logger log = LoggerFactory.getLogger(KafkaProduceServiceImpl.class);
+                log.info("Published message to kafka...");
             }
 
             @Override
             public void onFailure(Throwable ex) {
-                
+                Logger log = LoggerFactory.getLogger(KafkaProduceServiceImpl.class);
+                log.info("Failed publishing message to kafka...");
             }
         });
 
