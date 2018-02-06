@@ -5,6 +5,7 @@ package com.github.maxamel.server.web.dtos;
  */
 public enum ErrorCodes {
     UNAUTHORIZED,
+    FORBIDDEN,
     NOT_FOUND,
     REQUEST_NOT_READABLE,
     UNKNOWN,

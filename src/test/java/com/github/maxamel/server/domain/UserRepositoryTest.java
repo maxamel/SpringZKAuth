@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -27,38 +28,44 @@ public class UserRepositoryTest {
 
     @Autowired
     private UserRepository repository;
+    
+    @Value("{test.username}")
+    private String username;
+    
+    @Value("${test.passwordless}")
+    private String pass;
 
     @Test
     public void findOneShouldSuccessTest() {
         User persist = entityManager.persist(User.builder()
-                .name("John")
-                .passwordless("7896324669876116")
+                .name(username)
+                .passwordless(pass)
                 .build());
 
         Optional<User> user = repository.findOne(persist.getId());
         assertTrue(user.isPresent());
-        assertThat(user.get().getName(), is(equalTo("John")));
-        assertThat(user.get().getPasswordless(), is(equalTo("7896324669876116")));
+        assertThat(user.get().getName(), is(equalTo(username)));
+        assertThat(user.get().getPasswordless(), is(equalTo(pass)));
     }
     
     @Test
     public void findByNameShouldSuccessTest() {
         User persist = entityManager.persist(User.builder()
-                .name("John")
-                .passwordless("7896324669876116")
+                .name(username)
+                .passwordless(pass)
                 .build());
 
         Optional<User> user = repository.findByName(persist.getName());
         assertTrue(user.isPresent());
-        assertThat(user.get().getName(), is(equalTo("John")));
-        assertThat(user.get().getPasswordless(), is(equalTo("7896324669876116")));
+        assertThat(user.get().getName(), is(equalTo(username)));
+        assertThat(user.get().getPasswordless(), is(equalTo(pass)));
     }
     
     @Test
     public void removeShouldSuccessTest() {
         User persist = entityManager.persist(User.builder()
-                .name("John")
-                .passwordless("7896324669876116")
+                .name(username)
+                .passwordless(pass)
                 .build());
 
         repository.delete(persist.getId());
@@ -70,8 +77,8 @@ public class UserRepositoryTest {
     @Test
     public void removeByNameShouldSuccessTest() {
         User persist = entityManager.persist(User.builder()
-                .name("John")
-                .passwordless("7896324669876116")
+                .name(username)
+                .passwordless(pass)
                 .build());
 
         repository.deleteByName(persist.getName());
@@ -83,13 +90,13 @@ public class UserRepositoryTest {
     @Test
     public void findAllShouldSuccessTest() {
         User persist1 = entityManager.persist(User.builder()
-                .name("John")
-                .passwordless("7896324669876116")
+                .name(username)
+                .passwordless(pass)
                 .build());
         
         User persist2 = entityManager.persist(User.builder()
                 .name("Mike")
-                .passwordless("1A44F2165DE46A2")
+                .passwordless(pass)
                 .build());
 
         List<User> users = repository.findAll();
@@ -98,6 +105,5 @@ public class UserRepositoryTest {
         assertTrue(users.get(0).equals(persist1));
         assertTrue(users.get(1).equals(persist2));
     }
-
 
 }

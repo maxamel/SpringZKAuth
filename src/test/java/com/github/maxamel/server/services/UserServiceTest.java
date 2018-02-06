@@ -3,7 +3,6 @@ package com.github.maxamel.server.services;
 import com.github.maxamel.server.domain.model.User;
 import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.domain.repositories.UserRepository;
-import com.github.maxamel.server.services.UserService;
 import com.github.maxamel.server.services.impl.KafkaProduceServiceImpl;
 import com.github.maxamel.server.services.impl.UserServiceImpl;
 import com.github.maxamel.server.services.mapping.MappingBasePackage;
@@ -58,13 +57,16 @@ public class UserServiceTest {
     
     @Value("${test.answer}")
     private String answer;
+    
+    @Value("{test.username}")
+    private String username;
 
     @Test
     public void fetchWaitToValidate()
     {
         User result = User.builder()
                 .id(1L)
-                .name("John")
+                .name(username)
                 .passwordless(pass)
                 .secret(sec)
                 .sstatus(SessionStatus.WAITING)
@@ -72,7 +74,7 @@ public class UserServiceTest {
         Optional<User> opt = Optional.of(result);
         
         when(repository.findByName(any(String.class))).thenReturn(opt);
-        UserDto dto = service.fetch("John", answer);
+        UserDto dto = service.fetch(username, answer);
         assertTrue(dto.getSstatus().equals(SessionStatus.VALIDATED));
     }
     
@@ -81,7 +83,7 @@ public class UserServiceTest {
     {
         User result = User.builder()
                 .id(1L)
-                .name("John")
+                .name(username)
                 .passwordless(pass)
                 .secret(wsec)
                 .sstatus(SessionStatus.WAITING)
@@ -89,7 +91,7 @@ public class UserServiceTest {
         Optional<User> opt = Optional.of(result);
         
         when(repository.findByName(any(String.class))).thenReturn(opt);
-        service.fetch("John", answer);
+        service.fetch(username, answer);
     }
     
     @Test(expected = AccessDeniedException.class)
@@ -97,7 +99,7 @@ public class UserServiceTest {
     {
         User result = User.builder()
                 .id(1L)
-                .name("John")
+                .name(username)
                 .passwordless(pass)
                 .secret(null)
                 .sstatus(SessionStatus.WAITING)
@@ -105,7 +107,7 @@ public class UserServiceTest {
         Optional<User> opt = Optional.of(result);
         
         when(repository.findByName(any(String.class))).thenReturn(opt);
-        service.fetch("John", answer);
+        service.fetch(username, answer);
     }
     
     @Test
@@ -113,7 +115,7 @@ public class UserServiceTest {
     {
         User user = User.builder()
                 .id(1L)
-                .name("John")
+                .name(username)
                 .passwordless(pass)
                 .secret(sec)
                 .sstatus(SessionStatus.WAITING)
@@ -135,7 +137,7 @@ public class UserServiceTest {
     {
         User user = User.builder()
                 .id(1L)
-                .name("John")
+                .name(username)
                 .passwordless(pass)
                 .secret(wsec)
                 .sstatus(SessionStatus.WAITING)

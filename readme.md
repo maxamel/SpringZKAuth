@@ -1,7 +1,10 @@
 # SpringZKAuth : A zero-knowledge authentication scheme
 
-A Spring project utilizing zero-knowledge-password-proof authentication with changing session IDs.
-(In development)
+A Spring project utilizing zero-knowledge-password-proof for authentication and also provides changing session IDs (configurable).
+
+Status: In development
+
+
 
 # Overview
 
@@ -17,6 +20,12 @@ Here is an example of a client registering and then making arbitrary requests.
 </p>
 
 Note that session changing is not described in the diagram, but it is explained further on.
+
+# Features
+
+* Authentication using zero-knowledge password proof
+* Changing session IDs by publishing challenges to Kafka message broker
+* Users are sent challenges on separate Kafka topics which are opened only for them and deleted upon session invalidation
 
 # Prerequisites
 

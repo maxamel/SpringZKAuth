@@ -41,6 +41,7 @@ public class UserController {
     @ApiOperation(value = "Register new user")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Successfully registered user"),
+            @ApiResponse(code = 409, message = "User already exists"),
             @ApiResponse(code = 428, message = "Invalid user info", response = ErrorDto.class)})
     @ResponseStatus(code = HttpStatus.CREATED)
     @PostMapping

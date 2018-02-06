@@ -18,6 +18,7 @@ import java.util.TimerTask;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -60,7 +61,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto register(UserDto dto) {
         User user = mapper.map(dto, User.class);
-        repository.findByName(user.getName()).ifPresent(u -> new EmptyResultDataAccessException("User already exists with name: " + u.getName(), 1));
+        repository.findByName(user.getName()).ifPresent(u -> new DataIntegrityViolationException("User already exists with name: " + u.getName()));
         
         User newuser = repository.save(user);
         return mapper.map(newuser, UserDto.class);
@@ -72,7 +73,7 @@ public class UserServiceImpl implements UserService {
         User user = repository.findOne(id).orElseThrow(() -> new EmptyResultDataAccessException("No user found with id: " + id, 1));
         if (verify(user,sessionId)) repository.delete(id);
         else
-        {
+        {      
             throwChallengedException(user);
         }
     }

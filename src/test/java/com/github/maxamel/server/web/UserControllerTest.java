@@ -11,6 +11,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,13 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ComponentScan(basePackageClasses = UserNameUnique.class)
 @ContextConfiguration(classes = JsonConfiguration.class)
 @WebMvcTest(secure = false, controllers = UserController.class)
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class UserControllerTest {
 
     @Autowired
@@ -52,19 +48,30 @@ public class UserControllerTest {
 
     @MockBean
     private UserService service;
+    
+    @Value("{test.username}")
+    private String username;
+    
+    @Value("${test.passwordless}")
+    private String pass;
+    
+    private final static String path = "/users/Mike";
+    private final static String NOT_FOUND = "Not found";
+    private final static String message = "$.message";
+    private final static String error = "$.errorCode";
 
     @Test
     public void registerSuccess() throws Exception {
         UserDto request = UserDto.builder()
                 .id(1L)
-                .name("John")
-                .passwordless("49663222554763")
+                .name(username)
+                .passwordless(pass)
                 .build();
 
         UserDto result = UserDto.builder()
                 .id(1L)
-                .name("John")
-                .passwordless("49663222554763")
+                .name(username)
+                .passwordless(pass)
                 .build();
 
         when(service.register(any(UserDto.class))).thenReturn(result);
@@ -74,8 +81,8 @@ public class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(equalTo(1))))
-                .andExpect(jsonPath("$.name", is(equalTo("John"))))
-                .andExpect(jsonPath("$.passwordless", is(equalTo("49663222554763"))));
+                .andExpect(jsonPath("$.name", is(equalTo(username))))
+                .andExpect(jsonPath("$.passwordless", is(equalTo(pass))));
 
         verify(service, times(1)).register(any(UserDto.class));
         verifyNoMoreInteractions(service);
@@ -86,8 +93,8 @@ public class UserControllerTest {
     public void registerValidationFailedUniqueName() throws Exception {
         UserDto request = UserDto.builder()
                 .id(1L)
-                .name("John")
-                .passwordless("2324431211357")
+                .name(username)
+                .passwordless(pass)
                 .build();
 
         when(service.register(any(UserDto.class)))
@@ -98,7 +105,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.errorCode", is(equalTo(ErrorCodes.DATA_VALIDATION.toString()))))
+                .andExpect(jsonPath(error, is(equalTo(ErrorCodes.DATA_VALIDATION.toString()))))
                 .andExpect(jsonPath("$.errors").isArray())
                 .andExpect(jsonPath("$.errors[0].fieldName", is(equalTo("name"))))
                 .andExpect(jsonPath("$.errors[0].errorCode", is(equalTo("UNIQUE"))));
@@ -111,18 +118,18 @@ public class UserControllerTest {
     public void fetchSuccess() throws Exception {
         UserDto result = UserDto.builder()
                 .id(1L)
-                .name("Mike")
-                .passwordless("2324431211357")
+                .name(username)
+                .passwordless(pass)
                 .build();
         
         when(service.fetch(any(String.class), any(String.class))).thenReturn(result);
-        mvc.perform(get("/users/Mike")
+        mvc.perform(get(path)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(equalTo(1))))
-                .andExpect(jsonPath("$.name", is(equalTo("Mike"))))
-                .andExpect(jsonPath("$.passwordless", is(equalTo("2324431211357"))));
+                .andExpect(jsonPath("$.name", is(equalTo(username))))
+                .andExpect(jsonPath("$.passwordless", is(equalTo(pass))));
 
         verify(service, times(1)).fetch(any(String.class), any(String.class));
         verifyNoMoreInteractions(service);
@@ -132,12 +139,12 @@ public class UserControllerTest {
     public void fetchNotFound() throws Exception {
         when(service.fetch(any(String.class), any(String.class)))
         .thenThrow(new EmptyResultDataAccessException("Not found",0));
-        mvc.perform(get("/users/Mike")
+        mvc.perform(get(path)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode", is(equalTo(ErrorCodes.NOT_FOUND.toString()))))
-                .andExpect(jsonPath("$.message", is(equalTo("Not found"))));
+                .andExpect(jsonPath(error, is(equalTo(ErrorCodes.NOT_FOUND.toString()))))
+                .andExpect(jsonPath(message, is(equalTo(NOT_FOUND))));
         
         verify(service, times(1)).fetch(any(String.class), any(String.class));
         verifyNoMoreInteractions(service);
@@ -146,14 +153,14 @@ public class UserControllerTest {
     @Test
     public void fetchWrongSessionId() throws Exception {
         when(service.fetch(any(String.class), any(String.class)))
-        .thenThrow(new AccessDeniedException("134FF26B81CD285"));
-        mvc.perform(get("/users/Mike")
+        .thenThrow(new AccessDeniedException(pass));
+        mvc.perform(get(path)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.errorCode", is(equalTo(ErrorCodes.UNAUTHORIZED.toString()))))
-                .andExpect(jsonPath("$.challenge", is(equalTo("134FF26B81CD285"))))
-                .andExpect(jsonPath("$.message", is(equalTo("Unauthorized"))));
+                .andExpect(jsonPath(error, is(equalTo(ErrorCodes.UNAUTHORIZED.toString()))))
+                .andExpect(jsonPath("$.challenge", is(equalTo(pass))))
+                .andExpect(jsonPath(message, is(equalTo("Unauthorized"))));
         
         verify(service, times(1)).fetch(any(String.class), any(String.class));
         verifyNoMoreInteractions(service);
@@ -162,7 +169,7 @@ public class UserControllerTest {
     @Test
     public void removeSuccess() throws Exception {
         doNothing().when(service).removeByName(any(String.class), any(String.class));
-        mvc.perform(delete("/users/Mike")
+        mvc.perform(delete(path)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -174,12 +181,12 @@ public class UserControllerTest {
     @Test
     public void removeNotFound() throws Exception {
         doThrow(new EmptyResultDataAccessException("Not found",0)).when(service).removeByName(any(String.class), any(String.class));
-        mvc.perform(delete("/users/Mike")
+        mvc.perform(delete(path)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode", is(equalTo(ErrorCodes.NOT_FOUND.toString()))))
-                .andExpect(jsonPath("$.message", is(equalTo("Not found"))));
+                .andExpect(jsonPath(error, is(equalTo(ErrorCodes.NOT_FOUND.toString()))))
+                .andExpect(jsonPath(message, is(equalTo(NOT_FOUND))));
         
         verify(service, times(1)).removeByName(any(String.class), any(String.class));
         verifyNoMoreInteractions(service);
@@ -187,14 +194,14 @@ public class UserControllerTest {
     
     @Test
     public void removeWrongSessionId() throws Exception {
-        doThrow(new AccessDeniedException("134FF26B81CD285")).when(service).removeByName(any(String.class), any(String.class));
-        mvc.perform(delete("/users/Mike")
+        doThrow(new AccessDeniedException(pass)).when(service).removeByName(any(String.class), any(String.class));
+        mvc.perform(delete(path)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.errorCode", is(equalTo(ErrorCodes.UNAUTHORIZED.toString()))))
-                .andExpect(jsonPath("$.challenge", is(equalTo("134FF26B81CD285"))))
-                .andExpect(jsonPath("$.message", is(equalTo("Unauthorized"))));
+                .andExpect(jsonPath(error, is(equalTo(ErrorCodes.UNAUTHORIZED.toString()))))
+                .andExpect(jsonPath("$.challenge", is(equalTo(pass))))
+                .andExpect(jsonPath(message, is(equalTo("Unauthorized"))));
         
         verify(service, times(1)).removeByName(any(String.class), any(String.class));
         verifyNoMoreInteractions(service);
