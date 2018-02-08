@@ -1,17 +1,31 @@
+[![Travis CI](https://travis-ci.org/maxamel/SpringZKAuth.svg)](https://travis-ci.org/maxamel/SpringZKAuth)<br/>
+[![Quality Gate](https://sonarcloud.io/api/badges/gate?key=SpringZKAuth)](https://sonarcloud.io/api/badges/gate?key=SpringZKAuth)<br/>
+[![Code Coverage](https://sonarcloud.io/api/badges/measure?key=SpringZKAuth&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=SpringZKAuth&metric=coverage)<br/>
+
 # SpringZKAuth : A zero-knowledge authentication scheme
 
-A Spring project utilizing zero-knowledge-password-proof for authentication and also provides changing session IDs (configurable).
+A Spring project utilizing zero-knowledge password proof for secure and private authentication and provides a continuous authentication mechanism using changing session IDs.
 
 Status: In development
-
-
 
 # Overview
 
 [Zero-knowledge](https://en.wikipedia.org/wiki/Zero-knowledge_proof) is a cryptographic method one can use when required to prove knowledge of a certain secret without revealing anything about the secret itself.
-This method is utilized in this project to provide a zero-knowledge-password-proof (ZKPP) authentication mechanism, meaning proving the knowledge of a password without revealing anything about it. Traditionally, when a user logs into a system, he transmits his user and password over the (possibly encrypted) network. Various security methods exist in order to ensure this password remains a secret, such as hashing, salting, etc. 
-This project provides enhanced security in the form of ZKPP, and changing session IDs. Specifically, the password of the user is kept completely secret, and is never transmitted over the wire. Additionally, the session ID of the user is periodically changed on the server side. This session ID is also kept secret and the server only transmits a hint via a message broker (e.g. kafka) about the new session ID. This hint relies on the [discrete logarithm](https://en.wikipedia.org/wiki/Discrete_logarithm) problem, to ensure only the user can compute the new session ID, and no one else. This makes session hijacking practically useless since the session ID is only valid for a very short period of time (configurable). 
-The server can also set inactivity thresholds on the session so that if a user is idle for a certain period of time his session is invalidated and he will have to perform the authentication again.
+This method is utilized in this project to provide a zero-knowledge password proof (ZKPP) authentication mechanism, meaning proving the knowledge of a password without revealing anything about it. Traditionally, when a user logs into a system, he transmits his user and password over the (possibly encrypted) network. Various security methods exist in order to ensure this password is kept securely, such as hashing, salting, etc. 
+This project provides enhanced security in the form of ZKPP, and continuous authentication. Specifically, the password of the user is kept completely secret, and is never transmitted over the wire to the server. The server holds only a hint (which is a one-way function) of the password, that is irreversible and no one can deduce the original password from it. Additionally, the session ID of the user is periodically changed on the server side. This session ID is also kept secret and the server only transmits a hint via a message broker (e.g. Kafka) about the new session ID. These hints rely on the [discrete logarithm](https://en.wikipedia.org/wiki/Discrete_logarithm) problem, to ensure only the user can compute the necessary information, and no one else. This makes session hijacking practically useless since the session ID is only valid for a very short period of time (configurable). 
+The server can also set inactivity thresholds on the session so that if a user is idle for a certain period of time his session is invalidated and he will have to perform the authentication process again.
+
+# Usage
+
+The purpose of the project is to provide an infrastructure. If you want to build a RESTful service which provides enhanced security and privacy through ZKPP and continuous authentication then you can use this project as a starting point.
+However, the content to be served by the service is up to you. Currently the logic of the application is just keeping records of users and providing secure, authenticated access to them. You can add your own APIs, DB tables, and all the rest, according to the needs of your own application.
+
+
+# How does it work?
+
+Let's dive into the nuts and bolts of the cryptographic magic going on behind the scenes.
+Firstly, there are two large numbers that are publicly known to everyone. These are the cyclic group generator (g) and a large prime (N). These numbers are carefully picked out, so do not touch them unless you know what you're doing. 
+When a user wants to register to the system he provides a password as an input (on client-side only) and this password is hashed to produce a unique representation of the password, call it x. The client program then computes (g^x mod N) and sends it to the server-side. Note that neither the server, nor anyone else listening in on the communication can derive x from (g^x mod N). The server saves that information. When the user wants to start consuming APIs, he inputs the password for the user, and waits for a challenge from the server. The server comes up with a large number y, and challenges the user with (g^y mod N). Now both client and server can compute the solution to the challenge. The client by performing ((g^y)^x mod N) and the server by performing ((g^x)^y mod N). Once the server receives the solution from the client he can verify it against his own and grant access if it is correct. From this point on this solution serves as the session ID for that user until the server issues a new challenge via a Kafka message broker. These challenges are issued in configurable intervals, and are effective immediately, so all future client requests must contain the new session ID.
 
 Here is an example of a client registering and then making arbitrary requests.
 
@@ -19,30 +33,35 @@ Here is an example of a client registering and then making arbitrary requests.
   <img src="https://github.com/maxamel/SpringZKAuth/blob/master/diagram.png" />
 </p>
 
-Note that session ID changing is not described in the diagram, but it is explained further on.
+Note that session ID changing is not described in the diagram, but it is explained further on. Also, the diagram shows a successful path of execution, while there could be a few other unsuccessful alternatives.
+
 
 # Features
 
 * Authentication using zero-knowledge password proof
-* Changing session IDs by publishing challenges to Kafka message broker
-* Users are sent challenges on separate Kafka topics which are opened only for them and deleted upon session invalidation
+* Continuous authentication by publishing challenges to Kafka message broker
+* 1000 users per Kafka topic (separate partitions)
+* Configurable session inactivity thresholds
+* A client-side console application to interact with the system
+* No login APIs, the user inputs the password once and all future authentication and validations happen behind the scenes
 
 # Prerequisites
 
-Java 8
+* Java 8 or above
 
-NodeJS
+* NodeJS 5.6.0 or above
 
-Kafka
+* Kafka 0.10.2.1 or above
 
-H2 database
+* H2 database
 
-Gradle
+* Gradle 4.3 or above
 
 # Installation
 
 Assuming you have the above programs installed, follow the below steps to install:
 
+From the command line install the following modules:
 ```javascript
 npm install big-integer
 npm install stack-lifo
@@ -50,10 +69,14 @@ npm install kafka-node
 npm install no-kafka-slim
 ```
 
-# Usage
+Open your Kafka server.properties and add the following lines:
+```
+auto.create.topics.enable=true
+num.partitions=1000
+```
 
-The purpose of the project is to provide an infrastructure. If you want to build a RESTful service which provides enhanced security and privacy through ZKPP and changing sessionIDs then you can use this project as a starting point.
-However, the content to be served by the service is up to you. Currently the logic of the application is just keeping records of users and providing secure, authenticated access to them. You can add your own APIs, DB tables, and all the rest.
+No need to add any special configurations to the database as the default test db is used. Just make sure it's up and running. If you want to use another database, just change the
+datasource section in application.yml.
 
 # Running the Javascript client
 

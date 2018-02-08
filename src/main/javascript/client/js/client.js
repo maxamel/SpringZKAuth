@@ -136,7 +136,7 @@ function sendRequestOptions(options, body)
       	      	    else 
       	      	    {
       	      	        stack.push(globalcommand);
-                        console.log("Please enter password for new user " + cache.name);
+                        console.log("Incorrect password, please try again..." + cache.name);
                         return;
       	      	    }
       	      	  });

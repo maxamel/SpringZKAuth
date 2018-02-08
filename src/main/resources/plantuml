@@ -1,0 +1,56 @@
+@startuml
+skinparam backgroundColor #EEEBDC
+skinparam handwritten true
+skinparam sequence {
+    ArrowColor DeepSkyBlue
+    ActorBorderColor DeepSkyBlue
+        EntityBoderColor DeepSkyBlue
+    LifeLineBorderColor blue
+    LifeLineBackgroundColor #A9DCDF
+    
+    EntityBorderColor DeepSkyBlue
+    EntityBackgroundColor DodgerBlue
+    EntityFontName Impact
+    EntityFontSize 17
+    EntityFontColor #A9DCDF
+    
+    ActorBackgroundColor aqua
+    ActorFontColor DeepSkyBlue
+    ActorFontSize 17
+    ActorFontName Aapex
+
+        DatabaseBackgroundColor aqua
+    DatabaseFontColor DeepSkyBlue
+    DatabaseFontSize 17
+    DatabaseFontName Aapex
+}
+legend top center
+Public variables:
+Large generator g
+Large prime N
+end legend
+
+group Register
+actor Client
+entity Server
+Client ->o Client : x
+Client -> Server : g^x mod N
+database DB
+Server -> DB : g^x mod N
+Server -[#green]> Client : 201 CREATED
+end
+group Request
+Client -> Server : GET /something
+Server ->o Server : y
+Server -[#red]> Client : 401 Unauthorized
+note left: Challenge:g^y mod N
+Client -> Server : GET /something 
+note right : sessionID:(g^y)^x mod N
+DB -> Server : g^x mod N
+Server ->o Server : (g^x)^y mod N
+Server -[#green]> Client : 200 OK
+Client -> Server : GET /somethingelse 
+note right : sessionID:(g^y)^x mod N
+Server -[#green]> Client : 200 OK
+end
+@enduml
