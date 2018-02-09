@@ -105,7 +105,7 @@ public class UserServiceImpl implements UserService {
     }
     
     @Transactional
-    private boolean verify(User user,String response)
+    public boolean verify(User user,String response)
     {
         BigInteger passwordless = new BigInteger(user.getPasswordless(),16); 
         BigInteger secret = new BigInteger(user.getSecret(), 16);
@@ -166,7 +166,12 @@ public class UserServiceImpl implements UserService {
             
             @Override
             public void run() {
-                scheduler.publishChallenge(user);
+                try {
+					scheduler.publishChallenge(user);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         }, Long.parseLong(chalFreq), Long.parseLong(chalFreq));
         
@@ -175,7 +180,12 @@ public class UserServiceImpl implements UserService {
             
             @Override
             public void run() {
-                scheduler.handleActivity(user, list);
+                try {
+					scheduler.handleActivity(user, list);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         }, Long.parseLong(inactThreshold), Long.parseLong(inactThreshold));
         

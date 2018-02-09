@@ -43,7 +43,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
     private final Semaphore sem = new Semaphore(1);
     
     @Override
-    public void publishChallenge(User olduser)
+    public void publishChallenge(User olduser) throws InterruptedException
     {
         try
         {
@@ -65,11 +65,12 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
         {
             Logger log = LoggerFactory.getLogger(ScheduleTaskService.class);
             log.info("Publishing to Kafka interrupted!");
+            throw e;
         }
     }
     
     @Override
-    public void handleActivity(User olduser, List<Timer> timers)
+    public void handleActivity(User olduser, List<Timer> timers) throws InterruptedException
     {
         try
         {
@@ -100,6 +101,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
         {
             Logger log = LoggerFactory.getLogger(ScheduleTaskService.class);
             log.info("Handling activity interrupted!");
+            throw e;
         }
     }
 }

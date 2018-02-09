@@ -25,7 +25,7 @@ However, the content to be served by the service is up to you. Currently the log
 
 Let's dive into the nuts and bolts of the cryptographic magic going on behind the scenes.
 Firstly, there are two large numbers that are publicly known to everyone. These are the cyclic group generator (g) and a large prime (N). These numbers are carefully picked out, so do not touch them unless you know what you're doing. 
-When a user wants to register to the system he provides a password as an input (on client-side only) and this password is hashed to produce a unique representation of the password, call it x. The client program then computes (g^x mod N) and sends it to the server-side. Note that neither the server, nor anyone else listening in on the communication can derive x from (g^x mod N). The server saves that information. When the user wants to start consuming APIs, he inputs the password for the user, and waits for a challenge from the server. The server comes up with a large number y, and challenges the user with (g^y mod N). Now both client and server can compute the solution to the challenge. The client by performing ((g^y)^x mod N) and the server by performing ((g^x)^y mod N). Once the server receives the solution from the client he can verify it against his own and grant access if it is correct. From this point on this solution serves as the session ID for that user until the server issues a new challenge via a Kafka message broker. These challenges are issued in configurable intervals, and are effective immediately, so all future client requests must contain the new session ID.
+When a user wants to register to the system he provides a password as an input (on client-side only) and this password is hashed to produce a unique representation of the password, call it x. The client program then computes (g^x mod N) and sends it to the server-side. Note that neither the server, nor anyone else listening in on the communication can derive x from (g^x mod N). The server saves that information. When the user wants to start consuming APIs, he inputs the password for the user, and waits for a challenge from the server. The server comes up with a large number y, and challenges the user with (g^y mod N). Now both client and server can compute the solution to the challenge. The client by performing ((g^y)^x mod N) and the server by performing ((g^x)^y mod N). Once the server receives the solution from the client he can verify it against his own and grant access if it is correct. From this point on, this solution serves as the session ID for that user until the server issues a new challenge via a Kafka message broker. These challenges are issued in configurable intervals, and are effective immediately, so all future client requests must contain the new session ID.
 
 Here is an example of a client registering and then making arbitrary requests.
 
@@ -40,10 +40,10 @@ Note that session ID changing is not described in the diagram, but it is explain
 
 * Authentication using zero-knowledge password proof
 * Continuous authentication by publishing challenges to Kafka message broker
-* 1000 users per Kafka topic (separate partitions)
 * Configurable session inactivity thresholds
 * A client-side console application to interact with the system
-* No login APIs, the user inputs the password once and all future authentication and validations happen behind the scenes
+* No login APIs, after first password prompt all future authentications are done in the background
+* High test coverage
 
 # Prerequisites
 
@@ -75,13 +75,12 @@ auto.create.topics.enable=true
 num.partitions=1000
 ```
 
-No need to add any special configurations to the database as the default test db is used. Just make sure it's up and running. If you want to use another database, just change the
-datasource section in application.yml.
+No need to add any special configurations to the database as the default test db is used. Just make sure everything is up and running. 
 
 # Running the Javascript client
 
-The JavaScript client supports three basic commands, the minimum required to demonstrate the concepts of ZKPP. Register, remove and fetch. Register and remove are the basic endpoints for user management. Anyone can register a user as long as such a user does not exist in the database. Only the registered user can remove himself from the system. 
-The only endpoint a user can consume once authenticated is the fetch command, which is basically fetching the user data. There is no login command. A user just starts consuming the API. If he is not authenticated, he will be required to enter his password, which will be used to solve challenges sent to him during the session. 
+The JavaScript client supports three basic commands: register, remove and fetch. Register and remove are the basic endpoints for user management. Anyone can register a user as long as such a user does not exist in the database. Only the registered user can remove himself from the system. 
+The third endpoint a user can consume (once authenticated), is the fetch command, which is basically fetching the users' data. There is no login command. A user just starts calling the API. If he is not authenticated, he will be required to enter his password, which will be used to solve challenges sent to him during the session. 
 
 COMMANDS: 
 
