@@ -8,6 +8,7 @@ import com.github.maxamel.server.services.ScheduleTaskService;
 import com.github.maxamel.server.services.UserService;
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -148,9 +149,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    private void generateServerSecret(User olduser) {
+    public void generateServerSecret(User olduser) {
         User user = repository.findByName(olduser.getName()).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + olduser.getName(), 1));
-        SecureRandom random = new SecureRandom();
+        SecureRandom random = new SecureRandom(String.valueOf(System.currentTimeMillis()).getBytes(Charset.defaultCharset()));
         BigInteger bigint =  new BigInteger(256, random);
         user.setSecret(bigint.toString(16));
         user.setSstatus(SessionStatus.INITIATING);
@@ -166,12 +167,7 @@ public class UserServiceImpl implements UserService {
             
             @Override
             public void run() {
-                try {
 					scheduler.publishChallenge(user);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
             }
         }, Long.parseLong(chalFreq), Long.parseLong(chalFreq));
         
@@ -180,12 +176,7 @@ public class UserServiceImpl implements UserService {
             
             @Override
             public void run() {
-                try {
 					scheduler.handleActivity(user, list);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
             }
         }, Long.parseLong(inactThreshold), Long.parseLong(inactThreshold));
         

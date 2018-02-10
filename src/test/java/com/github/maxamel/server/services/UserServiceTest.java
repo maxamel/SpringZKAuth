@@ -11,7 +11,10 @@ import com.github.rozidan.springboot.modelmapper.WithModelMapper;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
@@ -36,14 +39,14 @@ public class UserServiceTest {
 
     @Autowired
     private UserService service;
-
+    
     @MockBean
     private UserRepository repository;
     
     @MockBean
     private ScheduleTaskService scheduler;
     
-    @Mock
+    @MockBean
     private KafkaProduceServiceImpl kafka;
     
     @Value("${test.passwordless}")
@@ -61,6 +64,108 @@ public class UserServiceTest {
     @Value("{test.username}")
     private String username;
 
+    @Test
+    public void fetch()
+    {
+        User result = User.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(sec)
+                .sstatus(SessionStatus.WAITING)
+                .build();
+        Optional<User> opt = Optional.of(result);
+        
+        when(repository.findByName(any(String.class))).thenReturn(opt);
+        UserDto dto = service.fetch(username, answer);
+        assertTrue(dto.getId().equals(result.getId()));
+        assertTrue(dto.getName().equals(result.getName()));
+        assertTrue(dto.getPasswordless().equals(result.getPasswordless()));
+        assertTrue(dto.getSecret().equals(result.getSecret()));
+        assertTrue(dto.getSstatus().equals(result.getSstatus()));
+    }
+    
+    @Test
+    public void register()
+    {
+    	User intermidiate = User.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(sec)
+                .sstatus(SessionStatus.WAITING)
+                .build();
+        UserDto result = UserDto.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(sec)
+                .sstatus(SessionStatus.WAITING)
+                .build();
+        Optional<User> opt = Optional.empty();
+        
+        when(repository.findByName(any(String.class))).thenReturn(opt);
+        when(repository.save(any(User.class))).thenReturn(intermidiate);
+        UserDto dto = service.register(result);
+        assertTrue(dto.getId().equals(result.getId()));
+        assertTrue(dto.getName().equals(result.getName()));
+        assertTrue(dto.getPasswordless().equals(result.getPasswordless()));
+        assertTrue(dto.getSecret().equals(result.getSecret()));
+        assertTrue(dto.getSstatus().equals(result.getSstatus()));
+    }
+    
+    @Test
+    public void remove()
+    {
+        User result = User.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(sec)
+                .sstatus(SessionStatus.WAITING)
+                .build();
+        Optional<User> opt = Optional.of(result);
+        
+        when(repository.findOne(any(Long.class))).thenReturn(opt);
+        
+        Mockito.doAnswer(new Answer<Object>() {
+        	@Override
+        	public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        		Object[] args = invocationOnMock.getArguments();
+        		Long toBeDeleted = (Long) args[0];
+        		assertTrue(toBeDeleted.equals(result.getId()));
+        		return null;
+        	}
+        }).when(repository).delete(Matchers.any(Long.class));
+        service.remove(result.getId(),answer);
+    }
+    
+    @Test
+    public void removeByName()
+    {
+        User result = User.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(sec)
+                .sstatus(SessionStatus.WAITING)
+                .build();
+        Optional<User> opt = Optional.of(result);
+        
+        when(repository.findByName(any(String.class))).thenReturn(opt);
+        
+        Mockito.doAnswer(new Answer<Object>() {
+        	@Override
+        	public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        		Object[] args = invocationOnMock.getArguments();
+        		String toBeDeleted = (String) args[0];
+        		assertTrue(toBeDeleted.equals(result.getName()));
+        		return null;
+        	}
+        }).when(repository).deleteByName(Matchers.any(String.class));
+        service.removeByName(result.getName(),answer);
+    }
+    
     @Test
     public void fetchWaitToValidate()
     {
@@ -153,5 +258,40 @@ public class UserServiceTest {
         assertTrue(user.getSstatus().equals(SessionStatus.INVALIDATED));
         assertTrue(user.getSecret() == null);
         assertTrue(!obj.booleanValue());
+    }
+    
+    @Test 
+    public void generateServerSecret()
+    {
+    	User input = User.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(sec)
+                .sstatus(SessionStatus.WAITING)
+                .build();
+    	User result = User.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(sec)
+                .sstatus(SessionStatus.WAITING)
+                .build();
+        Optional<User> opt = Optional.of(result);
+        
+        when(repository.findByName(any(String.class))).thenReturn(opt);
+        
+        Mockito.doAnswer(new Answer<Object>() {
+        	@Override
+        	public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        		Object[] args = invocationOnMock.getArguments();
+        		User toBeUpdated = (User) args[0];
+        		assertTrue(toBeUpdated.getName().equals(input.getName()));
+        		assertTrue(!toBeUpdated.getSecret().equals(input.getSecret()));
+        		assertTrue(toBeUpdated.getSstatus().equals(SessionStatus.INITIATING));
+        		return null;
+        	}
+        }).when(repository).save(Matchers.any(User.class));
+        service.generateServerSecret(input);
     }
 }

@@ -43,7 +43,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
     private final Semaphore sem = new Semaphore(1);
     
     @Override
-    public void publishChallenge(User olduser) throws InterruptedException
+    public void publishChallenge(User olduser)
     {
         try
         {
@@ -53,7 +53,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
             {
                 SecureRandom random = new SecureRandom();
                 BigInteger bigint =  new BigInteger(256, random);
-                user.setSecret(bigint.toString());
+                user.setSecret(bigint.toString(16));
                 repository.save(user);  
                 BigInteger power = new BigInteger(generator,16).modPow(new BigInteger(user.getSecret(),16), new BigInteger(prime,16)); 
                 ChallengeDto dto = new ChallengeDto(power.toString(16));
@@ -65,12 +65,12 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
         {
             Logger log = LoggerFactory.getLogger(ScheduleTaskService.class);
             log.info("Publishing to Kafka interrupted!");
-            throw e;
+            Thread.currentThread().interrupt();
         }
     }
     
     @Override
-    public void handleActivity(User olduser, List<Timer> timers) throws InterruptedException
+    public void handleActivity(User olduser, List<Timer> timers)
     {
         try
         {
@@ -101,7 +101,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
         {
             Logger log = LoggerFactory.getLogger(ScheduleTaskService.class);
             log.info("Handling activity interrupted!");
-            throw e;
+            Thread.currentThread().interrupt();
         }
     }
 }

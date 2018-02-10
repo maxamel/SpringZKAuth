@@ -7,7 +7,7 @@ import com.github.maxamel.server.domain.model.User;
 
 public interface ScheduleTaskService {
 
-    public void publishChallenge(User user) throws InterruptedException;
+    public void publishChallenge(User user);
     
-    public void handleActivity(User user, List<Timer> timers) throws InterruptedException;
+    public void handleActivity(User user, List<Timer> timers);
 }
