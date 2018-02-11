@@ -78,7 +78,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
             User user = repository.findByName(olduser.getName()).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + olduser.getName(), 1));
             Timer challengeTimer = timers.get(Constants.TIMER_CHALLENGE);
             Timer inactTimer = timers.get(Constants.TIMER_INACTIVITY);
-            if (user.getSstatus().equals(SessionStatus.WAITING)) 
+            if (user.getSstatus().equals(SessionStatus.WAITING) || user.getSstatus().equals(SessionStatus.INITIATING)) 
             {
                 Logger log = LoggerFactory.getLogger(ScheduleTaskService.class);
                 log.info("Inactivity threshold reached! Invalidating..." + user.getName());
@@ -88,7 +88,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
                 repository.save(user);
                 inactTimer.cancel();
             }
-            else 
+            else if (user.getSstatus().equals(SessionStatus.VALIDATED))
             {
                 Logger log = LoggerFactory.getLogger(ScheduleTaskService.class);
                 log.info("Detected activity! Resuming..." + user.getName());

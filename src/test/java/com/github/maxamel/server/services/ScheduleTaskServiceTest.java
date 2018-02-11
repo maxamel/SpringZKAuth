@@ -122,4 +122,66 @@ public class ScheduleTaskServiceTest {
 
     }
     
+    @Test
+    public void handleActivityInitiatingUser()
+    {
+        List<Timer> timers = new ArrayList<>();
+        timers.add(new Timer());
+        timers.add(new Timer());
+        User result = User.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(sec)
+                .sstatus(SessionStatus.INITIATING)
+                .build();
+        Optional<User> opt = Optional.of(result);
+        
+        when(repository.findByName(any(String.class))).thenReturn(opt);
+
+        Mockito.doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                Object[] args = invocationOnMock.getArguments();
+                User toBeSaved = (User) args[0];
+                Assert.assertTrue(toBeSaved.getSecret() == null);
+                Assert.assertTrue(toBeSaved.getSstatus().equals(SessionStatus.INVALIDATED));
+                return null;
+            }
+        }).when(repository).save(Matchers.any(User.class));
+        scheduler.handleActivity(result, timers);
+
+    }
+    
+    @Test
+    public void handleActivityValidatedUser()
+    {
+        List<Timer> timers = new ArrayList<>();
+        timers.add(new Timer());
+        timers.add(new Timer());
+        User result = User.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(sec)
+                .sstatus(SessionStatus.VALIDATED)
+                .build();
+        Optional<User> opt = Optional.of(result);
+        
+        when(repository.findByName(any(String.class))).thenReturn(opt);
+
+        Mockito.doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                Object[] args = invocationOnMock.getArguments();
+                User toBeSaved = (User) args[0];
+                Assert.assertTrue(toBeSaved.getSecret().equals(sec));
+                Assert.assertTrue(toBeSaved.getSstatus().equals(SessionStatus.WAITING));
+                return null;
+            }
+        }).when(repository).save(Matchers.any(User.class));
+        scheduler.handleActivity(result, timers);
+
+    }
+    
 }

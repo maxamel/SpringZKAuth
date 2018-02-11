@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -213,6 +214,21 @@ public class UserServiceTest {
         
         when(repository.findByName(any(String.class))).thenReturn(opt);
         service.fetch(username, answer);
+    }
+    
+
+    @Test(expected = DataIntegrityViolationException.class)
+    public void findByNameExistingUser() {
+        UserDto user = UserDto.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(sec)
+                .sstatus(SessionStatus.WAITING)
+                .build();
+        
+        when(repository.findByName(any(String.class))).thenThrow(new DataIntegrityViolationException("User already exists with name:" + user.getName()));
+        service.register(user);
     }
     
     @Test
