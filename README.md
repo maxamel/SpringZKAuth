@@ -1,6 +1,6 @@
 [![Travis CI](https://travis-ci.org/maxamel/SpringZKAuth.svg)](https://travis-ci.org/maxamel/SpringZKAuth)<br/>
-[![Quality Gate](https://sonarcloud.io/api/badges/gate?key=SpringZKAuth)](https://sonarcloud.io/api/badges/gate?key=SpringZKAuth)<br/>
-[![Code Coverage](https://sonarcloud.io/api/badges/measure?key=SpringZKAuth&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=SpringZKAuth&metric=coverage)<br/>
+[![Quality Gate](https://sonarcloud.io/api/badges/gate?key=com.github.maxamel:SpringZKAuth)](https://sonarcloud.io/api/badges/gate?key=com.github.maxamel:SpringZKAuth)<br/>
+[![Code Coverage](https://sonarcloud.io/api/badges/measure?key=com.github.maxamel:SpringZKAuth&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=com.github.maxamel:SpringZKAuth&metric=coverage)<br/>
 
 # SpringZKAuth : A zero-knowledge authentication application
 
