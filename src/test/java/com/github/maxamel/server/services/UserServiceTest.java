@@ -239,7 +239,7 @@ public class UserServiceTest {
                 .name(username)
                 .passwordless(pass)
                 .secret(sec)
-                .sstatus(SessionStatus.WAITING)
+                .sstatus(SessionStatus.INITIATING)
                 .build();
         
         Class<UserServiceImpl> c = UserServiceImpl.class;

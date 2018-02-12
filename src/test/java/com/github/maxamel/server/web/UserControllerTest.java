@@ -55,10 +55,12 @@ public class UserControllerTest {
     @Value("${test.passwordless}")
     private String pass;
     
-    private final static String path = "/users/Mike";
+    private final static String users = "/users";
+    private final static String usersMike = "/users/Mike";
     private final static String NOT_FOUND = "Not found";
     private final static String message = "$.message";
-    private final static String error = "$.errorCode";
+    private final static String errorCode = "$.errorCode";
+    private final static String errors = "$.errors";
 
     @Test
     public void registerSuccess() throws Exception {
@@ -75,7 +77,7 @@ public class UserControllerTest {
                 .build();
 
         when(service.register(any(UserDto.class))).thenReturn(result);
-        mvc.perform(post("/users")
+        mvc.perform(post(users)
                 .content(writer.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -87,6 +89,61 @@ public class UserControllerTest {
         verify(service, times(1)).register(any(UserDto.class));
         verifyNoMoreInteractions(service);
 
+    }
+    
+    @Test
+    public void UnknownPath() throws Exception {
+        UserDto request = UserDto.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .build();
+
+        mvc.perform(post("/unknown")
+                .content(writer.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath(errorCode, is(equalTo(ErrorCodes.NOT_FOUND.toString()))))
+                .andExpect(jsonPath(errors).isEmpty());
+    }
+    
+    @Test
+    public void IncorrectMethod() throws Exception {
+        UserDto request = UserDto.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .build();
+
+        mvc.perform(get(users)
+                .content(writer.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath(errorCode, is(equalTo(ErrorCodes.METHOD_NOT_ALLOWED.toString()))))
+                .andExpect(jsonPath(errors).isArray())
+                .andExpect(jsonPath("$.errors[0].actualMethod", is(equalTo("GET"))))
+                .andExpect(jsonPath("$.errors[0].supportedMethods").isArray())
+                .andExpect(jsonPath("$.errors[0].supportedMethods[0]", is(equalTo("POST"))));
+    }
+    
+    @Test
+    public void UnsupportedMedia() throws Exception {
+        UserDto request = UserDto.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .build();
+
+        mvc.perform(post(users)
+                .content(writer.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED))
+                .andDo(print())
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(jsonPath(errorCode, is(equalTo(ErrorCodes.HTTP_MEDIA_TYPE_NOT_SUPPORTED.toString()))))
+                .andExpect(jsonPath(errors).isArray())
+                .andExpect(jsonPath("$.errors[0].mediaType", is(equalTo("application/x-www-form-urlencoded"))));
     }
 
     @Test
@@ -100,13 +157,13 @@ public class UserControllerTest {
         when(service.register(any(UserDto.class)))
                 .thenThrow(new DataIntegrityViolationException("",
                         new ConstraintViolationException("", null, UserNameUnique.CONSTRAINT_NAME)));
-        mvc.perform(post("/users")
+        mvc.perform(post(users)
                 .content(writer.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath(error, is(equalTo(ErrorCodes.DATA_VALIDATION.toString()))))
-                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath(errorCode, is(equalTo(ErrorCodes.DATA_VALIDATION.toString()))))
+                .andExpect(jsonPath(errors).isArray())
                 .andExpect(jsonPath("$.errors[0].fieldName", is(equalTo("name"))))
                 .andExpect(jsonPath("$.errors[0].errorCode", is(equalTo("UNIQUE"))));
 
@@ -123,7 +180,7 @@ public class UserControllerTest {
                 .build();
         
         when(service.fetch(any(String.class), any(String.class))).thenReturn(result);
-        mvc.perform(get(path)
+        mvc.perform(get(usersMike)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -139,11 +196,11 @@ public class UserControllerTest {
     public void fetchNotFound() throws Exception {
         when(service.fetch(any(String.class), any(String.class)))
         .thenThrow(new EmptyResultDataAccessException("Not found",0));
-        mvc.perform(get(path)
+        mvc.perform(get(usersMike)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath(error, is(equalTo(ErrorCodes.NOT_FOUND.toString()))))
+                .andExpect(jsonPath(errorCode, is(equalTo(ErrorCodes.NOT_FOUND.toString()))))
                 .andExpect(jsonPath(message, is(equalTo(NOT_FOUND))));
         
         verify(service, times(1)).fetch(any(String.class), any(String.class));
@@ -154,11 +211,11 @@ public class UserControllerTest {
     public void fetchWrongSessionId() throws Exception {
         when(service.fetch(any(String.class), any(String.class)))
         .thenThrow(new AccessDeniedException(pass));
-        mvc.perform(get(path)
+        mvc.perform(get(usersMike)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath(error, is(equalTo(ErrorCodes.UNAUTHORIZED.toString()))))
+                .andExpect(jsonPath(errorCode, is(equalTo(ErrorCodes.UNAUTHORIZED.toString()))))
                 .andExpect(jsonPath("$.challenge", is(equalTo(pass))))
                 .andExpect(jsonPath(message, is(equalTo("Unauthorized"))));
         
@@ -169,7 +226,7 @@ public class UserControllerTest {
     @Test
     public void removeSuccess() throws Exception {
         doNothing().when(service).removeByName(any(String.class), any(String.class));
-        mvc.perform(delete(path)
+        mvc.perform(delete(usersMike)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -181,11 +238,11 @@ public class UserControllerTest {
     @Test
     public void removeNotFound() throws Exception {
         doThrow(new EmptyResultDataAccessException("Not found",0)).when(service).removeByName(any(String.class), any(String.class));
-        mvc.perform(delete(path)
+        mvc.perform(delete(usersMike)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath(error, is(equalTo(ErrorCodes.NOT_FOUND.toString()))))
+                .andExpect(jsonPath(errorCode, is(equalTo(ErrorCodes.NOT_FOUND.toString()))))
                 .andExpect(jsonPath(message, is(equalTo(NOT_FOUND))));
         
         verify(service, times(1)).removeByName(any(String.class), any(String.class));
@@ -195,11 +252,11 @@ public class UserControllerTest {
     @Test
     public void removeWrongSessionId() throws Exception {
         doThrow(new AccessDeniedException(pass)).when(service).removeByName(any(String.class), any(String.class));
-        mvc.perform(delete(path)
+        mvc.perform(delete(usersMike)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath(error, is(equalTo(ErrorCodes.UNAUTHORIZED.toString()))))
+                .andExpect(jsonPath(errorCode, is(equalTo(ErrorCodes.UNAUTHORIZED.toString()))))
                 .andExpect(jsonPath("$.challenge", is(equalTo(pass))))
                 .andExpect(jsonPath(message, is(equalTo("Unauthorized"))));
         

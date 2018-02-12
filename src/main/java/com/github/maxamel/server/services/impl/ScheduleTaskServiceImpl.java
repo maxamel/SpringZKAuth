@@ -2,8 +2,8 @@ package com.github.maxamel.server.services.impl;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.List;
-import java.util.Timer;
+import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -14,7 +14,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.github.maxamel.server.domain.model.Constants;
 import com.github.maxamel.server.domain.model.User;
 import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.domain.repositories.UserRepository;
@@ -70,23 +69,20 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
     }
     
     @Override
-    public void handleActivity(User olduser, List<Timer> timers)
+    public void handleActivity(User olduser, Map<Long, ScheduledExecutorService> kafkaTiming)
     {
         try
         {
             sem.acquire();
             User user = repository.findByName(olduser.getName()).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + olduser.getName(), 1));
-            Timer challengeTimer = timers.get(Constants.TIMER_CHALLENGE);
-            Timer inactTimer = timers.get(Constants.TIMER_INACTIVITY);
             if (user.getSstatus().equals(SessionStatus.WAITING) || user.getSstatus().equals(SessionStatus.INITIATING)) 
             {
                 Logger log = LoggerFactory.getLogger(ScheduleTaskService.class);
                 log.info("Inactivity threshold reached! Invalidating..." + user.getName());
-                challengeTimer.cancel();
                 user.setSstatus(SessionStatus.INVALIDATED);
                 user.setSecret(null);
                 repository.save(user);
-                inactTimer.cancel();
+                kafkaTiming.get(olduser.getId()).shutdown();
             }
             else if (user.getSstatus().equals(SessionStatus.VALIDATED))
             {

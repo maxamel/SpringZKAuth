@@ -16,8 +16,9 @@ This project provides enhanced security in the form of ZKPP, and continuous auth
 
 # Usage
 
-The purpose of the project is to provide a POC-level system. If you want to build a RESTful service which provides enhanced security and privacy through ZKPP and continuous authentication then you can use this project as a starting point.
-However, the content to be served by the service is up to you. Currently the logic of the application is just keeping records of users and providing secure, authenticated access to them. You can add your own APIs, DB tables, and all the rest, according to the needs of your own application.
+The purpose of the project is to provide a POC-level system, and a demonstration of how the concept of zero-knowledge can assist in application security. 
+If you want to build a RESTful service which provides enhanced security and privacy through ZKPP and continuous authentication then you can use this project as a starting point.
+However, the content to be served by the service is up to you. Currently the guts of the application is just keeping records of users and providing secure, authenticated access to them. You can add your own APIs, DB tables, and all the rest, according to the needs of your own application.
 
 
 # How does it work?

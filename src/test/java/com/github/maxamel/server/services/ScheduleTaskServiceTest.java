@@ -25,10 +25,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Timer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 @RunWith(SpringRunner.class)
 @WithModelMapper(basePackageClasses = MappingBasePackage.class)
@@ -94,9 +95,7 @@ public class ScheduleTaskServiceTest {
     @Test
     public void handleActivityWaitingUser()
     {
-    	List<Timer> timers = new ArrayList<>();
-    	timers.add(new Timer());
-    	timers.add(new Timer());
+        Map<Long, ScheduledExecutorService> timers = new HashMap<>();
         User result = User.builder()
                 .id(1L)
                 .name(username)
@@ -105,7 +104,8 @@ public class ScheduleTaskServiceTest {
                 .sstatus(SessionStatus.WAITING)
                 .build();
         Optional<User> opt = Optional.of(result);
-        
+        ScheduledExecutorService execService = Executors.newScheduledThreadPool(2);
+        timers.put(result.getId(), execService);
         when(repository.findByName(any(String.class))).thenReturn(opt);
 
         Mockito.doAnswer(new Answer<Object>() {
@@ -125,9 +125,7 @@ public class ScheduleTaskServiceTest {
     @Test
     public void handleActivityInitiatingUser()
     {
-        List<Timer> timers = new ArrayList<>();
-        timers.add(new Timer());
-        timers.add(new Timer());
+        Map<Long, ScheduledExecutorService> timers = new HashMap<>();
         User result = User.builder()
                 .id(1L)
                 .name(username)
@@ -136,7 +134,8 @@ public class ScheduleTaskServiceTest {
                 .sstatus(SessionStatus.INITIATING)
                 .build();
         Optional<User> opt = Optional.of(result);
-        
+        ScheduledExecutorService execService = Executors.newScheduledThreadPool(2);
+        timers.put(result.getId(), execService);
         when(repository.findByName(any(String.class))).thenReturn(opt);
 
         Mockito.doAnswer(new Answer<Object>() {
@@ -156,9 +155,7 @@ public class ScheduleTaskServiceTest {
     @Test
     public void handleActivityValidatedUser()
     {
-        List<Timer> timers = new ArrayList<>();
-        timers.add(new Timer());
-        timers.add(new Timer());
+        Map<Long, ScheduledExecutorService> timers = new HashMap<>();
         User result = User.builder()
                 .id(1L)
                 .name(username)
@@ -167,6 +164,8 @@ public class ScheduleTaskServiceTest {
                 .sstatus(SessionStatus.VALIDATED)
                 .build();
         Optional<User> opt = Optional.of(result);
+        ScheduledExecutorService execService = Executors.newScheduledThreadPool(2);
+        timers.put(result.getId(), execService);
         
         when(repository.findByName(any(String.class))).thenReturn(opt);
 

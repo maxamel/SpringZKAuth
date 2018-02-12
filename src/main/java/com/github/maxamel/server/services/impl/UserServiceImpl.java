@@ -11,10 +11,10 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
     
-    private final Map<Long, LinkedList<Timer>> kafkaTiming = new HashMap<>();
+    private final Map<Long, ScheduledExecutorService> kafkaTiming = new HashMap<>();
     
     @Value("${security.session.challengeFrequency}")
     private String chalFreq;
@@ -130,9 +130,8 @@ public class UserServiceImpl implements UserService {
             repository.save(user);
             if (kafkaTiming.containsKey(user.getId())) 
             {
-                LinkedList<Timer> list = kafkaTiming.get(user.getId());
-                for (Timer t : list)
-                    t.cancel();
+                ScheduledExecutorService  execService = kafkaTiming.get(user.getId());
+                execService.shutdownNow();
             }
             return false;
         }
@@ -159,29 +158,26 @@ public class UserServiceImpl implements UserService {
     }
 
     private void scheduleAuthTask(User user) {
-        LinkedList<Timer> list = new LinkedList<>();
-        kafkaTiming.put(user.getId(), list);
         
-        Timer challengeTimer = new Timer();
-        challengeTimer.scheduleAtFixedRate(new TimerTask() {
-            
+        ScheduledExecutorService execService = Executors.newScheduledThreadPool(2);
+        
+        execService.scheduleAtFixedRate(new Runnable() {
+       
             @Override
             public void run() {
-					scheduler.publishChallenge(user);
+                scheduler.publishChallenge(user);
             }
-        }, Long.parseLong(chalFreq), Long.parseLong(chalFreq));
+        }, Long.parseLong(chalFreq), Long.parseLong(chalFreq), TimeUnit.MILLISECONDS);
         
-        Timer inactTimer = new Timer();
-        inactTimer.scheduleAtFixedRate(new TimerTask() {
-            
+        execService.scheduleAtFixedRate(new Runnable() {
+
             @Override
             public void run() {
-					scheduler.handleActivity(user, list);
+                scheduler.handleActivity(user, kafkaTiming);
             }
-        }, Long.parseLong(inactThreshold), Long.parseLong(inactThreshold));
+        }, Long.parseLong(inactThreshold), Long.parseLong(inactThreshold), TimeUnit.MILLISECONDS);
         
-        list.add(challengeTimer);
-        list.add(inactTimer);
+        kafkaTiming.put(user.getId(), execService);
     }
     
 }

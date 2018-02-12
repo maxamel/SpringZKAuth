@@ -6,11 +6,8 @@ import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -18,10 +15,7 @@ import lombok.ToString;
  */
 @ApiModel("Challenge")
 @Getter
-@Setter
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class ChallengeDto extends AuditableDto {
