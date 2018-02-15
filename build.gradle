@@ -54,6 +54,12 @@ dependencies {
     compile('com.github.rozidan:modelmapper-spring-boot-starter:1.0.1-SNAPSHOT')
     compile('com.github.rozidan:logger-spring-boot:1.0.0-SNAPSHOT')
     compile('org.springframework.kafka:spring-kafka')
+    compile('org.apache.kafka:kafka_2.11:1.0.0'){
+        exclude group: "org.slf4j"
+    }
+    compile('com.101tec:zkclient:0.7'){
+        exclude group: "org.slf4j"
+    }
     
     compile('org.toile-libre.libe:curl:0.0.13')
     
@@ -84,3 +90,4 @@ dependencyManagement {
         dependency 'com.google.guava:guava:23.5-jre'
     }
 }
+

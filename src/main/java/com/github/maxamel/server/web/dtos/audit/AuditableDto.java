@@ -5,13 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
-/**
- * @author Idan Rozenfeld
- */
 @Getter
-@ToString
 @EqualsAndHashCode
 @ApiModel("Audit")
 public class AuditableDto implements Serializable {

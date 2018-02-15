@@ -1,6 +1,7 @@
 package com.github.maxamel.server.services.impl;
 
 import com.github.maxamel.server.web.dtos.UserDto;
+
 import com.github.maxamel.server.domain.model.User;
 import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.domain.repositories.UserRepository;
@@ -157,8 +158,8 @@ public class UserServiceImpl implements UserService {
         repository.save(user);
     }
 
-    private void scheduleAuthTask(User user) {
-        
+    private void scheduleAuthTask(User user) 
+    {   
         ScheduledExecutorService execService = Executors.newScheduledThreadPool(2);
         
         execService.scheduleAtFixedRate(new Runnable() {
@@ -167,7 +168,7 @@ public class UserServiceImpl implements UserService {
             public void run() {
                 scheduler.publishChallenge(user);
             }
-        }, Long.parseLong(chalFreq), Long.parseLong(chalFreq), TimeUnit.MILLISECONDS);
+        }, 0, Long.parseLong(chalFreq), TimeUnit.MILLISECONDS);
         
         execService.scheduleAtFixedRate(new Runnable() {
 

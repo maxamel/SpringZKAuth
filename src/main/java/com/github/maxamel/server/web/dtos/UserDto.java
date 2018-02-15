@@ -30,7 +30,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class UserDto extends AuditableDto {
     private static final long serialVersionUID = 5762617605382814204L;
 
-    @ApiModelProperty(allowEmptyValue = true)
+    @ApiModelProperty(required = true)
     private Long id;
 
     @ApiModelProperty(required = true)

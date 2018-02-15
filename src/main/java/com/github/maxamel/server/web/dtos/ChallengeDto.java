@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
 /**
  * @author Max Amelchenko
@@ -16,7 +15,6 @@ import lombok.ToString;
 @ApiModel("Challenge")
 @Getter
 @AllArgsConstructor
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class ChallengeDto extends AuditableDto {
     private static final long serialVersionUID = 5762617605382814204L;

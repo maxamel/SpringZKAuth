@@ -9,6 +9,7 @@ var g = "AC4032EF4F2D9AE39DF30B5C8FFDAC506CDEBE7B89998CAF74866A08CFE4FFE3A6824A4
 var N = "AD107E1E9123A9D0D660FAA79559C51FA20D64E5683B9FD1B54B1597B61D0A75E6FA141DF95A56DBAF9A3C407BA1DF15EB3D688A309C180E1DE6B85A1274A0A66D3F8152AD6AC2129037C9EDEFDA4DF8D91E8FEF55B7394B7AD5B7D0B6C12207C9F98D11ED34DBF6C6BA0B2C8BBC27BE6A00E0A0B9C49708B3BF8A317091883681286130BC8985DB1602E714415D9330278273C7DE31EFDC7310F7121FD5A07415987D9ADC0A486DCDF93ACC44328387315D75E198C641A480CD86A1B9E587E8BE60E69CC928B2B9C52172E413042E9B23F10B0E16E79763C9B53DCF4BA80A29E3FB73C16B8E75B97EF363E2FFA31F71CF9DE5384E71B81C0AC4DFFE0C10E64F";
 
 var cache = {
+		id: "",
         name: "",
         password: ""
 };
@@ -45,7 +46,10 @@ function processCommand(string)
             temp = gen.modPow(pass, mod);
             registerpass = dec2hex(temp.toString());
         }
-        else cache.password = pass;
+        else 
+        {
+        	cache.password = pass;
+        }
         
         return processCommand(action);
     }	
@@ -132,7 +136,11 @@ function sendRequestOptions(options, body)
       	    	console.log('STATUS #2: ' + status2);
       	      	  r2.on('data', function(chunk){
       	      	    console.log("Got chunk " + chunk);
-      	      	    if (status2 == 200 || status2 == 201) spinUpKafkaConsumer();
+      	      	    if (status2 == 200 || status2 == 201) 
+      	      	    {
+      	      	    	json = JSON.parse(chunk);
+      	      	    	spinUpKafkaConsumer(json["name"]);
+      	      	    }
       	      	    else 
       	      	    {
       	      	        stack.push(globalcommand);
@@ -170,10 +178,12 @@ function dec2hex(str){
     return hex.join('')
 }
 
-function spinUpKafkaConsumer()
+function spinUpKafkaConsumer(topic)
 {
     var consumer = new kafka.SimpleConsumer({
-    connectionString: '172.30.141.117:9092'
+    connectionString: '10.8.120.192:9092',
+    idleTimeout: 3000,
+    socketTimeout: 9000
     });
 
     // data handler function can return a Promise
@@ -183,15 +193,17 @@ function spinUpKafkaConsumer()
             chal = bigInt(json["challenge"],16);
             mod = bigInt(N,16);
             console.log(m.message.value.toString('utf8'));
-            console.log("challenge " + chal);
+            //console.log("challenge " + chal);
             solution = chal.modPow(cache.password, mod).toString();
-            console.log("challenge " + chal);
+            //console.log("challenge " + chal);
         });
     };
 
     return consumer.init().then(function () {
         // Subscribe partitons 0 and 1 in a topic:
-        return consumer.subscribe('challenge', 0, dataHandler);
+        return consumer.subscribe(topic, 0, dataHandler);
+    }).error(function() {
+    	console.log("No topic ready yet!");
     });
  
     consumer.connect()

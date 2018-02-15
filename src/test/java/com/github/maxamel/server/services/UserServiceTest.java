@@ -243,7 +243,7 @@ public class UserServiceTest {
                 .build();
         
         Class<UserServiceImpl> c = UserServiceImpl.class;
-        Class[] cArgs = new Class[2];
+        Class<?>[] cArgs = new Class[2];
         cArgs[0] = User.class;
         cArgs[1] = String.class;
         Method method = c.getDeclaredMethod("verify", cArgs);
@@ -265,7 +265,7 @@ public class UserServiceTest {
                 .build();
         
         Class<UserServiceImpl> c = UserServiceImpl.class;
-        Class[] cArgs = new Class[2];
+        Class<?>[] cArgs = new Class[2];
         cArgs[0] = User.class;
         cArgs[1] = String.class;
         Method method = c.getDeclaredMethod("verify", cArgs);

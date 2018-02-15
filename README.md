@@ -42,8 +42,9 @@ Note that session ID changing is not described in the diagram, but it is explain
 * Continuous authentication by publishing challenges to Kafka message broker
 * Configurable session inactivity thresholds
 * A client-side console application to interact with the system
-* No login APIs, after first password prompt all future authentications are done in the background
+* No login API, after first password prompt all future authentications are done in the background
 * High test coverage
+* Automatic scale-up and scale-down of Kafka topics according to active users
 
 # Prerequisites
 
@@ -53,9 +54,13 @@ Note that session ID changing is not described in the diagram, but it is explain
 
 * Kafka 0.10.2.1 or above
 
+* Zookeeper 3.4.9 or above
+
 * H2 database
 
 * Gradle 4.3 or above
+
+Note that usually Kafka installation will install Zookeeper as well.
 
 # Installation
 
@@ -69,10 +74,13 @@ npm install kafka-node
 npm install no-kafka-slim
 ```
 
-Open your Kafka server.properties and add the following lines:
+Open your Kafka server.properties and make sure the following lines are present:
 ```
 auto.create.topics.enable=true
-num.partitions=1000
+num.partitions=1
+listeners=PLAINTEXT://YOUR_KAFKA_IP:9092
+zookeeper.connect=YOUR_ZOOKEEPER_IP:2181
+delete.topic.enable=true
 ```
 
 No need to add any special configurations to the database as the default test db is used. Just make sure everything is up and running. 
@@ -84,11 +92,9 @@ The third endpoint a user can consume (once authenticated), is the fetch command
 
 COMMANDS: 
 
-        REGISTER IP:port name
-        REMOVE IP:port name
-        FETCH IP:port name
-
-
+        REGISTER IP:port username
+        REMOVE IP:port username
+        FETCH IP:port username
 
 # License
 

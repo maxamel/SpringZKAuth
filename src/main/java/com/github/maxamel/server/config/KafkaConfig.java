@@ -18,7 +18,7 @@ import com.github.maxamel.server.web.dtos.ChallengeDto;
 @Configuration
 public class KafkaConfig {
 
-    @Value("${kafka.host.url}")
+    @Value("${kafka.broker.url}")
     private String brokerAddress;
 
     @Bean

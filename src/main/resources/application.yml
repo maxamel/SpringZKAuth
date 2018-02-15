@@ -55,9 +55,10 @@ management:
   security.enabled: false
   
 kafka:
-  host:
-    url: "172.30.141.117:9092"
-    challengetopic: "challenge"
+  zookeeper:
+    url: "10.8.120.192:2181"
+  broker:
+    url: "10.8.120.192:9092"
     
 test:
   username: "John"

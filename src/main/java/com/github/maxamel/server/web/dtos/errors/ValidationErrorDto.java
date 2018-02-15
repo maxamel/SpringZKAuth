@@ -8,9 +8,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.Singular;
 
-/**
- * @author Idan Rozenfeld
- */
 @ApiModel("ValidationError")
 @Getter
 @Setter

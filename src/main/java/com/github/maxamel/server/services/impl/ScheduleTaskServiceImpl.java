@@ -30,17 +30,14 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
     @Autowired
     private KafkaProduceServiceImpl producer;
     
-    @Value("${kafka.host.challengetopic}")
-    private String topic;
-    
     @Value("${security.crypto.generator}")
     private String generator;
     
     @Value("${security.crypto.prime}")
     private String prime;
-    
+   
     private final Semaphore sem = new Semaphore(1);
-    
+   
     @Override
     public void publishChallenge(User olduser)
     {
@@ -50,13 +47,14 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
             User user = repository.findByName(olduser.getName()).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + olduser.getName(), 1));
             if (!user.getSstatus().equals(SessionStatus.INVALIDATED))
             {
+                producer.openTopic(user.getName());
                 SecureRandom random = new SecureRandom();
                 BigInteger bigint =  new BigInteger(256, random);
                 user.setSecret(bigint.toString(16));
                 repository.save(user);  
                 BigInteger power = new BigInteger(generator,16).modPow(new BigInteger(user.getSecret(),16), new BigInteger(prime,16)); 
                 ChallengeDto dto = new ChallengeDto(power.toString(16));
-                producer.send(topic, dto);
+                producer.send(olduser.getName(), dto);
             }
             sem.release();
         }
@@ -81,6 +79,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
                 log.info("Inactivity threshold reached! Invalidating..." + user.getName());
                 user.setSstatus(SessionStatus.INVALIDATED);
                 user.setSecret(null);
+                producer.closeTopic(user.getName());
                 repository.save(user);
                 kafkaTiming.get(olduser.getId()).shutdown();
             }
@@ -100,4 +99,5 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
             Thread.currentThread().interrupt();
         }
     }
+   
 }

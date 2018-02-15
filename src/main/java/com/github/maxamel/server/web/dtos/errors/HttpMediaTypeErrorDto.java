@@ -6,9 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author Idan Rozenfeld
- */
 @ApiModel("HttpMediaTypeError")
 @Getter
 @Setter
