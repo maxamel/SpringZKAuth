@@ -3,7 +3,6 @@ package com.github.maxamel.server.services;
 import com.github.maxamel.server.domain.model.User;
 import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.domain.repositories.UserRepository;
-import com.github.maxamel.server.services.impl.KafkaProduceServiceImpl;
 import com.github.maxamel.server.services.impl.ScheduleTaskServiceImpl;
 import com.github.maxamel.server.services.mapping.MappingBasePackage;
 import com.github.rozidan.springboot.modelmapper.WithModelMapper;
@@ -44,7 +43,7 @@ public class ScheduleTaskServiceTest {
     private UserRepository repository;
     
     @MockBean
-    private KafkaProduceServiceImpl kafka;
+    private KafkaAgentService kafka;
     
     @Autowired
     private ScheduleTaskService scheduler;
@@ -84,6 +83,7 @@ public class ScheduleTaskServiceTest {
         	public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
         		Object[] args = invocationOnMock.getArguments();
         		User toBeSaved = (User) args[0];
+        		System.out.println(toBeSaved.getSecret().length());
         		Assert.assertTrue(!toBeSaved.getSecret().equals(sec));
         		Assert.assertTrue(toBeSaved.getSecret().length() == 64);
         		return null;

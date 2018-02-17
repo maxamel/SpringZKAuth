@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.maxamel.server.domain.model.User;
 import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.domain.repositories.UserRepository;
+import com.github.maxamel.server.services.KafkaAgentService;
 import com.github.maxamel.server.services.ScheduleTaskService;
 import com.github.maxamel.server.web.dtos.ChallengeDto;
 
@@ -28,7 +29,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
     private UserRepository repository;
     
     @Autowired
-    private KafkaProduceServiceImpl producer;
+    private KafkaAgentService producer;
     
     @Value("${security.crypto.generator}")
     private String generator;

@@ -60,8 +60,10 @@ dependencies {
     compile('com.101tec:zkclient:0.7'){
         exclude group: "org.slf4j"
     }
-    
+    compile('org.springframework.kafka:spring-kafka-test:2.1.2.RELEASE')
     compile('org.toile-libre.libe:curl:0.0.13')
+    compile('org.mockito:mockito-all:1.10.19')
+    
     
     compile('io.springfox:springfox-swagger2:2.7.0')
     compile('org.flywaydb:flyway-core')

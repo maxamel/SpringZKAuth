@@ -3,7 +3,6 @@ package com.github.maxamel.server.services;
 import com.github.maxamel.server.domain.model.User;
 import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.domain.repositories.UserRepository;
-import com.github.maxamel.server.services.impl.KafkaProduceServiceImpl;
 import com.github.maxamel.server.services.impl.UserServiceImpl;
 import com.github.maxamel.server.services.mapping.MappingBasePackage;
 import com.github.maxamel.server.web.dtos.UserDto;
@@ -48,7 +47,7 @@ public class UserServiceTest {
     private ScheduleTaskService scheduler;
     
     @MockBean
-    private KafkaProduceServiceImpl kafka;
+    private KafkaAgentService kafka;
     
     @Value("${test.passwordless}")
     private String pass;
