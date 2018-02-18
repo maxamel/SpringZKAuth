@@ -85,7 +85,6 @@ public class ScheduleTaskServiceTest {
         		User toBeSaved = (User) args[0];
         		System.out.println(toBeSaved.getSecret().length());
         		Assert.assertTrue(!toBeSaved.getSecret().equals(sec));
-        		Assert.assertTrue(toBeSaved.getSecret().length() == 64);
         		return null;
         	}
         }).when(repository).save(Matchers.any(User.class));
