@@ -13,7 +13,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
@@ -25,7 +24,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ToString(callSuper = true)
 @EqualsAndHashCode(of = "id", callSuper = true)
 public class UserDto extends AuditableDto {
     private static final long serialVersionUID = 5762617605382814204L;

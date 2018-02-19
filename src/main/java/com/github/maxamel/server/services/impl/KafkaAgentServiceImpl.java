@@ -30,21 +30,21 @@ import kafka.utils.ZkUtils;
 public class KafkaAgentServiceImpl implements KafkaAgentService{
 
     private final KafkaTemplate<String, ChallengeDto> kafkaTemplate;
-    
+
     private final ZkUtils zkUtils;
-    
+
     private final HashSet<String> openTopics = new HashSet<String>();
 
     @Autowired
     public KafkaAgentServiceImpl(@Value("${kafka.zookeeper.url}") String zkAddress, KafkaTemplate<String, ChallengeDto> kafkaTemplate) {
-    	ZkClient zkClient = new ZkClient(zkAddress,10000,10000);
-    	zkClient.setZkSerializer(getZkSerializer());
+        ZkClient zkClient = new ZkClient(zkAddress,10000,10000);
+        zkClient.setZkSerializer(getZkSerializer());
         boolean isSecureKafkaCluster = false;
         // ZkUtils for Kafka was used in Kafka 0.9.0.0 for the AdminUtils API
         this.zkUtils = new ZkUtils(zkClient, new ZkConnection(zkAddress), isSecureKafkaCluster);
         this.kafkaTemplate = kafkaTemplate;
-	}
-    
+    }
+
     @Loggable
     @Override
     public void send(String topic, ChallengeDto chal) {
@@ -76,7 +76,7 @@ public class KafkaAgentServiceImpl implements KafkaAgentService{
         // Add topic configuration here
         if (!AdminUtils.topicExists(zkUtils, topic))
             AdminUtils.createTopic(zkUtils, topic, 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$);
-        
+
         openTopics.add(topic);
     }
     @Loggable
@@ -87,22 +87,22 @@ public class KafkaAgentServiceImpl implements KafkaAgentService{
         AdminUtils.deleteTopic(zkUtils, topic);
         openTopics.remove(topic); 
     }
-    
-	private ZkSerializer getZkSerializer() {
-		return new ZkSerializer() {
+
+    private ZkSerializer getZkSerializer() {
+        return new ZkSerializer() {
             @Override
             public byte[] serialize(Object o)
-                throws ZkMarshallingError
+                    throws ZkMarshallingError
             {
-              return ZKStringSerializer.serialize(o);
+                return ZKStringSerializer.serialize(o);
             }
 
             @Override
             public Object deserialize(byte[] bytes)
-                throws ZkMarshallingError
+                    throws ZkMarshallingError
             {
-              return ZKStringSerializer.deserialize(bytes);
+                return ZKStringSerializer.deserialize(bytes);
             }
-          };
-	}
+        };
+    }
 }

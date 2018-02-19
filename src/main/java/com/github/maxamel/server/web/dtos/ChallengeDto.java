@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
 /**
  * @author Max Amelchenko
@@ -18,7 +17,6 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @Builder
-@ToString
 @EqualsAndHashCode(callSuper = true)
 public class ChallengeDto extends AuditableDto {
     private static final long serialVersionUID = 5762617605382814204L;

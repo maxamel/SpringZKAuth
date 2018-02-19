@@ -1,6 +1,5 @@
 package com.github.maxamel.server.services;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -15,9 +14,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -29,6 +28,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.maxamel.server.services.impl.KafkaAgentServiceImpl;
 import com.github.maxamel.server.services.mapping.MappingBasePackage;
@@ -36,13 +36,22 @@ import com.github.maxamel.server.web.dtos.ChallengeDto;
 import com.github.rozidan.springboot.modelmapper.WithModelMapper;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
 @WithModelMapper(basePackageClasses = MappingBasePackage.class)
 @SpringBootTest
+@SuppressWarnings("PMD.SingularField")
 public class KafkaAgentServiceTest {
 
-	@Autowired
 	private KafkaAgentService sender;
+	
+	@MockBean
+    private KafkaAgentService kafka;
+	
+	@Autowired
+    private Map<String, Object> producerConfigs;
+	
+	@Autowired
+	private ProducerFactory<String, ChallengeDto> producerFactory;
 	
 	private final static String topic = "topic";
 
@@ -83,13 +92,12 @@ public class KafkaAgentServiceTest {
 		// start the container and underlying message listener
 		container.start();
 
-		Map<String, Object> props = new HashMap<>();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, embeddedKafka.getBrokersAsString());
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-
-        ProducerFactory<String, ChallengeDto> pf = new DefaultKafkaProducerFactory<String, ChallengeDto>(props);
-        KafkaTemplate<String, ChallengeDto> template = new KafkaTemplate<>(pf);
+        producerConfigs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, embeddedKafka.getBrokersAsString());
+        producerConfigs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        producerConfigs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        
+        producerFactory = new DefaultKafkaProducerFactory<String, ChallengeDto>(producerConfigs);
+        KafkaTemplate<String, ChallengeDto> template = new KafkaTemplate<>(producerFactory);
 		// wait until the container has the required number of assigned partitions
 		ContainerTestUtils.waitForAssignment(container, embeddedKafka.getPartitionsPerTopic());
 
@@ -116,4 +124,5 @@ public class KafkaAgentServiceTest {
 		Assert.assertTrue(received.key() == null);
 		Assert.assertTrue(received.value().contains("challenge"));
 	}
+	
 }

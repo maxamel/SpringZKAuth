@@ -83,18 +83,21 @@ zookeeper.connect=YOUR_ZOOKEEPER_IP:2181
 delete.topic.enable=true
 ```
 
-No need to add any special configurations to the database as the default test db is used. Just make sure everything is up and running. 
+Restart Kafka. 
 
 # Running the Javascript client
 
 The JavaScript client supports three basic commands: register, remove and fetch. Register and remove are the basic endpoints for user management. Anyone can register a user as long as such a user does not exist in the database. Only the registered user can remove himself from the system. 
-The third endpoint a user can consume (once authenticated), is the fetch command, which is basically fetching the users' data. There is no login command. A user just starts calling the API. If he is not authenticated, he will be required to enter his password, which will be used to solve challenges sent to him during the session. 
+The third endpoint a user can consume (once authenticated), is the fetch command, which is basically fetching the users' data. 
+There is no login command. A user just starts calling the API. If he is not authenticated, he will be required to enter his password, which will be used to solve challenges sent to him during the session. In each command you specify the IP and port of the server and the username.
 
 COMMANDS: 
 
         REGISTER IP:port username
         REMOVE IP:port username
         FETCH IP:port username
+        
+A typical flow could be registering a user. Then fetching his data once. After that, as long as the inactivity threshold configured in the server is not reached, you can fetch the user data without any manual reauthentication. 
 
 # License
 
