@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' lang='en' manifest='manifest.appcache'>
+	<head>
+		<meta charset='utf-8'/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+		<link rel="stylesheet" href="css/styles.css" type="text/css" media="all" />
+		<!--[if lt IE 9]>
+			<script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<title>My Diary</title>
+	</head>
+	<body>
+		<h1>My Diary Entries</h1>
+		<section class="entries"></section>
+		<form id="storeEntry" rel="new">
+			<ul>
+				<li>
+					<label for="title">Title</label>
+					<input type="text" id="title" name="title" value="" />
+				</li>
+				<li>
+					<label for="content">Content</label>
+					<textarea id="content" name="content" rows="5"></textarea>
+				</li>
+			</ul>
+			<input id="btnCancel" type="button" value="Cancel" />
+			<input id="btnSubmit" type="submit" value="Save entry" />
+			<div id="location"></div>
+		</form>
+		<img id="newEntry" src='img/i_add.png' />
+		<img id="onlineStatus" src='img/i_offline.png' title="Offline mode" />
+
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script>window.jQuery || document.write('<script type="text/javascript" src="js/jquery-1.7.2.min.js"><\/script>')</script>
+		<script type="text/javascript" src="js/jquery.touchSwipe.js"></script>
+		<script type="text/javascript" src="js/script.js"></script>
+	</body>
+</html>
