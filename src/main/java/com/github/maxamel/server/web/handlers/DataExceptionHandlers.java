@@ -61,7 +61,6 @@ public class DataExceptionHandlers {
                         .build();
             }
         }
-
         return ErrorDto.builder()
                 .errorCode(ErrorCodes.UNKNOWN)
                 .message(ex.getLocalizedMessage())

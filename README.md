@@ -4,7 +4,7 @@
 
 # SpringZKAuth : A zero-knowledge authentication application
 
-A Spring project utilizing zero-knowledge password proof for secure and private authentication. Users are continuously authenticated throughout their session using changing session IDs.
+A Spring project utilizing zero-knowledge password proof for secure and private authentication. Users are continuously authenticated throughout their session using rotating session IDs.
 
 Status: In development
 
@@ -33,7 +33,7 @@ Here is an example of a client registering and then making arbitrary requests.
   <img src="https://github.com/maxamel/SpringZKAuth/blob/master/diagram.png" />
 </p>
 
-Note that session ID changing is not described in the diagram, but it is explained further on. Also, the diagram shows a successful path of execution, while there could be a few other unsuccessful alternatives.
+Note that session ID rotating is not described in the diagram, but it is explained further on. Also, the diagram shows a successful path of execution, while there could be a few other unsuccessful alternatives.
 
 
 # Features

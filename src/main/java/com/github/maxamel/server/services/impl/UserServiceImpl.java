@@ -161,22 +161,11 @@ public class UserServiceImpl implements UserService {
     private void scheduleAuthTask(User user) 
     {   
         ScheduledExecutorService execService = Executors.newScheduledThreadPool(2);
+        Runnable r1 = () -> {scheduler.publishChallenge(user);};
+        execService.scheduleAtFixedRate(r1, 0, Long.parseLong(chalFreq), TimeUnit.MILLISECONDS);
         
-        execService.scheduleAtFixedRate(new Runnable() {
-       
-            @Override
-            public void run() {
-                scheduler.publishChallenge(user);
-            }
-        }, 0, Long.parseLong(chalFreq), TimeUnit.MILLISECONDS);
-        
-        execService.scheduleAtFixedRate(new Runnable() {
-
-            @Override
-            public void run() {
-                scheduler.handleActivity(user, kafkaTiming);
-            }
-        }, Long.parseLong(inactThreshold), Long.parseLong(inactThreshold), TimeUnit.MILLISECONDS);
+        Runnable r2 = () -> {scheduler.handleActivity(user, kafkaTiming);};
+        execService.scheduleAtFixedRate(r2, Long.parseLong(inactThreshold), Long.parseLong(inactThreshold), TimeUnit.MILLISECONDS);
         
         kafkaTiming.put(user.getId(), execService);
     }

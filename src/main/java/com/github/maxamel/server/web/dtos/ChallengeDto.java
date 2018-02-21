@@ -17,7 +17,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(callSuper = true)
 public class ChallengeDto extends AuditableDto {
     private static final long serialVersionUID = 5762617605382814204L;
 

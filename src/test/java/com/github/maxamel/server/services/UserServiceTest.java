@@ -83,6 +83,8 @@ public class UserServiceTest {
         assertTrue(dto.getPasswordless().equals(result.getPasswordless()));
         assertTrue(dto.getSecret().equals(result.getSecret()));
         assertTrue(dto.getSstatus().equals(result.getSstatus()));
+        assertTrue(dto.getSstatus().equals(SessionStatus.byValue(1)));
+        assertTrue(dto.getSstatus().getValue().equals(1));
     }
     
     @Test
@@ -207,6 +209,22 @@ public class UserServiceTest {
                 .name(username)
                 .passwordless(pass)
                 .secret(null)
+                .sstatus(SessionStatus.WAITING)
+                .build();
+        Optional<User> opt = Optional.of(result);
+        
+        when(repository.findByName(any(String.class))).thenReturn(opt);
+        service.fetch(username, answer);
+    }
+    
+    @Test(expected = AccessDeniedException.class)
+    public void removeNonExistentUser()
+    {
+        User result = User.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(wsec)
                 .sstatus(SessionStatus.WAITING)
                 .build();
         Optional<User> opt = Optional.of(result);

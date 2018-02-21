@@ -1,5 +1,6 @@
 package com.github.maxamel.server.web;
 
+import com.github.maxamel.server.web.dtos.ChallengeDto;
 import com.github.maxamel.server.web.dtos.ErrorCodes;
 import com.github.maxamel.server.web.dtos.UserDto;
 import com.github.maxamel.server.config.JsonConfiguration;
@@ -8,6 +9,7 @@ import com.github.maxamel.server.services.UserService;
 import com.github.maxamel.server.web.controllers.UserController;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.exception.LockAcquisitionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,6 +131,19 @@ public class UserControllerTest {
     }
     
     @Test
+    public void InternalServerError() throws Exception {
+        ChallengeDto request = ChallengeDto.builder().challenge(pass).build();
+
+        mvc.perform(post(users)
+                .content(writer.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath(errorCode, is(equalTo(ErrorCodes.UNKNOWN.toString()))))
+                .andExpect(jsonPath(errors).isArray());
+    }
+    
+    @Test
     public void UnsupportedMedia() throws Exception {
         UserDto request = UserDto.builder()
                 .id(1L)
@@ -170,7 +185,29 @@ public class UserControllerTest {
         verify(service, times(1)).register(any(UserDto.class));
         verifyNoMoreInteractions(service);
     }
+    
+    @Test
+    public void dataIntegrityViolation() throws Exception {
+        UserDto request = UserDto.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .build();
 
+        when(service.register(any(UserDto.class)))
+                .thenThrow(new DataIntegrityViolationException("",
+                        new LockAcquisitionException("", null, UserNameUnique.CONSTRAINT_NAME)));
+        mvc.perform(post(users)
+                .content(writer.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath(errorCode, is(equalTo(ErrorCodes.UNKNOWN.toString()))))
+                .andExpect(jsonPath(errors).isArray());
+
+        verify(service, times(1)).register(any(UserDto.class));
+        verifyNoMoreInteractions(service);
+    }
     @Test
     public void fetchSuccess() throws Exception {
         UserDto result = UserDto.builder()
