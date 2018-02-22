@@ -4,14 +4,13 @@ body { font-family:sans-serif; padding:0; margin:0; background-color:#FFF; }
 h1, article h2 { cursor:pointer; }
 
 h1 { font-size:1.4em; padding:.45em; text-align:center; color:#FFF; text-shadow:2px 2px 2px rgba(0,0,0,.5);
-	background:#70AD4C;
-	background:-moz-linear-gradient(top,  #70AD4C 2%, #607D27 100%);
-	background:-webkit-gradient(linear, left top, left bottom, color-stop(2%,#70AD4C), color-stop(100%,#607D27));
-	background:-webkit-linear-gradient(top,  #70AD4C 2%,#607D27 100%);
-	background:-o-linear-gradient(top,  #70AD4C 2%,#607D27 100%);
-	background:-ms-linear-gradient(top,  #70AD4C 2%,#607D27 100%);
-	background:linear-gradient(top,  #70AD4C 2%,#607D27 100%);
-	filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#70AD4C', endColorstr='#607D27',GradientType=0 );
+	background:#f4e842;
+	background:-moz-linear-gradient(top,  #f4e842 2%, #607D27 100%);
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(2%,#f4e842), color-stop(100%,#607D27));
+	background:-webkit-linear-gradient(top,  #f4e842 2%,#607D27 100%);
+	background:-o-linear-gradient(top,  #f4e842 2%,#607D27 100%);
+	background:-ms-linear-gradient(top,  #f4e842 2%,#607D27 100%);
+	background:linear-gradient(top,  #f4e842 2%,#607D27 100%);
 }
 
 article { border-bottom:1px solid #CCC; border-top:1px solid #FFF; font-size:1em; }
@@ -26,9 +25,9 @@ article { border-bottom:1px solid #CCC; border-top:1px solid #FFF; font-size:1em
 	article p .map { display: block; font-size:.8em; color:#1B7AE0; font-style:italic; margin-top:.4em; text-decoration:none;}
 		article p .map:hover { text-decoration:underline; }
 
-#onlineStatus { display: block; cursor:pointer; position:absolute; top: .70em; left:.5em; display:none; }	
-#newEntry { display: block; cursor:pointer; position:absolute; top: .70em; right:.5em }
-#newEntry { display: block; cursor:pointer; position:absolute; top: .50em; right:.6em }
+#status { display: block; cursor:pointer; position:absolute; top: .40em; left:.5em; background-color: transparent;}	
+#refresh { display: block; cursor:pointer; position:absolute; top: .40em; right:3.5em; background-color: transparent;}   
+#newEntry { display: block; cursor:pointer; position:absolute; top: .40em; right:.5em }
 
 #storeEntry { display:none; width:96%; padding: 2%; }
 #storeEntry label { display: block; width:100%; margin:.7em 0 .1em 0; font-weight:bold; }

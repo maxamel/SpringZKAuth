@@ -10,9 +10,9 @@
 		<title>My Diary</title>
 	</head>
 	<body>
-		<h1>My Diary Entries</h1>
+		<h1>Secure Diary Entries</h1>
 		<section class="entries"></section>
-		<form id="storeEntry" rel="new">
+		<form id="storeEntry">
 			<ul>
 				<li>
 					<label for="title">Title</label>
@@ -25,14 +25,13 @@
 			</ul>
 			<input id="btnCancel" type="button" value="Cancel" />
 			<input id="btnSubmit" type="submit" value="Save entry" />
-			<div id="location"></div>
 		</form>
-		<img id="newEntry" src='img/i_add.png' />
-		<img id="onlineStatus" src='img/i_offline.png' title="Offline mode" />
-
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-		<script>window.jQuery || document.write('<script type="text/javascript" src="js/jquery-1.7.2.min.js"><\/script>')</script>
-		<script type="text/javascript" src="js/jquery.touchSwipe.js"></script>
-		<script type="text/javascript" src="js/script.js"></script>
+		<img id="newEntry" src='img/i_add.png' title="New Entry" width="35" height="35"/>
+		<img id="status" src='img/i_offline.png' title="Status" width="35" height="35"/>
+		<img id="refresh" src='img/refresh.png' title="Refresh" width="35" height="35"/>
+		<!-- script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script>window.jQuery || document.write('<script type="text/javascript" src="js/jquery-1.7.2.min.js"><\/script>')</script-->
+		
+		<script type="text/javascript" src="js/bundle.js"></script>
 	</body>
 </html>

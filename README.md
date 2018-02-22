@@ -72,6 +72,10 @@ npm install big-integer
 npm install stack-lifo
 npm install kafka-node
 npm install no-kafka-slim
+
+npm install require
+npm install -g browserify
+npm install alertify
 ```
 
 Open your Kafka server.properties and make sure the following lines are present:
