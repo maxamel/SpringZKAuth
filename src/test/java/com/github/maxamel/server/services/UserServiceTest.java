@@ -116,31 +116,6 @@ public class UserServiceTest {
         assertTrue(dto.getSstatus().equals(result.getSstatus()));
     }
     
-    @Test
-    public void remove()
-    {
-        User result = User.builder()
-                .id(1L)
-                .name(username)
-                .passwordless(pass)
-                .secret(sec)
-                .sstatus(SessionStatus.WAITING)
-                .build();
-        Optional<User> opt = Optional.of(result);
-        
-        when(repository.findOne(any(Long.class))).thenReturn(opt);
-        
-        Mockito.doAnswer(new Answer<Object>() {
-        	@Override
-        	public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-        		Object[] args = invocationOnMock.getArguments();
-        		Long toBeDeleted = (Long) args[0];
-        		assertTrue(toBeDeleted.equals(result.getId()));
-        		return null;
-        	}
-        }).when(repository).delete(Matchers.any(Long.class));
-        service.remove(result.getId(),answer);
-    }
     
     @Test
     public void removeByName()

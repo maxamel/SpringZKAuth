@@ -71,17 +71,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void remove(long id, String sessionId) {
-        User user = repository.findOne(id).orElseThrow(() -> new EmptyResultDataAccessException("No user found with id: " + id, 1));
-        if (verify(user,sessionId)) repository.delete(id);
-        else
-        {      
-            throwChallengedException(user);
-        }
-    }
-
-    @Override
-    @Transactional
     public void removeByName(String name, String sessionId) {
         User user = repository.findByName(name).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + name, 1));
         if (user.getSecret()!=null && verify(user,sessionId)) repository.deleteByName(name);
