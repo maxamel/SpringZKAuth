@@ -195,7 +195,62 @@ $(function(){
 		
 		// Link to open form
 		refresh.click(function() {
-			showForm('new');
+			if (cache.name == "")
+			{
+				/*alertify.genericDialog || alertify.dialog('message','genericDialog',function(){
+				    return {
+				        main:function(content){
+				            this.setContent(content);
+				        },
+				        setup:function(){
+				            return {
+				                focus:{
+				                    element:function(){
+				                        return this.elements.body.querySelector(this.get('selector'));
+				                    },
+				                    select:true
+				                },
+				                options:{
+				                    basic:true,
+				                    maximizable:false,
+				                    resizable:false,
+				                    padding:false
+				                }
+				            };
+				        },
+				        settings:{
+				            selector:undefined
+				        }
+				    };
+				});
+				//force focusing password box
+				alertify.genericDialog ($('#loginForm')[0]).set('selector', 'input[type="password"]');
+				*/
+				alertify.prompt('Username').set({onshow:null, onclose:function(){alertify.prompt('Password')
+					.set({onshow:null, onclose:function(){alertify.message('Password')}});
+				}});
+				alertify.prompt('Password').set({onshow:null, onclose:function(){alertify.prompt('Password')
+					.set({onshow:null, onclose:function(){alertify.message('Password')}});
+				}});
+				
+				/*alertify.prompt( 'Enter Username', 'Username', 'User Value',
+			                function(evt, value) 
+			               	{ 
+								/*alertify.prompt( 'Enter Password', 'Password', 'Password Value',
+								function(evt, value) 
+								{ 
+									alertify.success('You entered: ' + value) 
+								/*},
+								function() { alertify.error('Cancel') });
+								
+							},
+			                function() { alertify.error('Cancel') });
+			*/
+			}
+			else
+			{
+				
+			}
 		});
 
 		// Link to back to list
@@ -284,18 +339,6 @@ $(function(){
     	assignEventsToEntries();
 	}
 	
-
-	stdin = process.openStdin();
-
-	stdin.addListener("data", function(d) {
-	    string = d.toString()
-	    console.log("got input: [" + 
-	        d.toString().trim() + "]");
-	        
-	    command = d.toString().trim();
-	    processCommand(command);
-	});
-
 	function processCommand(string)
 	{
 	    globalcommand = string;
