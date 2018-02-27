@@ -73,7 +73,7 @@ npm install stack-lifo
 npm install kafka-node
 npm install no-kafka-slim
 
-npm install require
+npm install jquery
 npm install -g browserify
 npm install alertify
 ```

@@ -5,13 +5,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 		<link rel="stylesheet" href="css/styles.css" type="text/css" media="all" />
 		<link rel="stylesheet" href="css/alertify.min.css" type="text/css" media="all" />
-		<link rel="stylesheet" href="css/alertify.rtl.min.css" type="text/css" media="all" />
 		<link rel="stylesheet" href="css/bootstrap.css" type="text/css" media="all" />
-		<link rel="stylesheet" href="css/bootstrap.rtl.min.css" type="text/css" media="all" />
 		<link rel="stylesheet" href="css/default.css" type="text/css" media="all" />
-		<link rel="stylesheet" href="css/default.rtl.min.css" type="text/css" media="all" />
         <link rel="stylesheet" href="css/semantic.css" type="text/css" media="all" />
-		<link rel="stylesheet" href="css/semantic.rtl.min.css" type="text/css" media="all" />
 		<!--[if lt IE 9]>
 			<script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
@@ -21,7 +17,7 @@
 	<body>
 		<h1>Secure Diary Entries</h1>
 		<section class="entries"></section>
-		<form id="storeEntry">
+		<form id="storeEntry" style="alertifyjs.">
 			<ul>
 				<li>
 					<label for="title">Title</label>
@@ -38,13 +34,15 @@
 		<div style="display:none">
 		<form id="loginForm">
             <fieldset>
+            <div>
             <label> Username </label>
-            <input type="text" value="Mohammad"/> 
-    
+            <input id="formUsername" type="text" value=""/> 
+            </div>
+            <div>
             <label> Password </label>
-            <input type="password" value="password"/> 
-    
-            <input type="submit" value="Login"/>
+            <input id="formPassword" type="password" value=""/> 
+            </div>
+            <input id="formSubmit" type="submit" value="Go!"/>
             </fieldset>  
         </form>
         </div> 
@@ -53,8 +51,8 @@
 		<img id="register" src='img/register.png' title="Register" width="35" height="35"/>
 		<img id="status" src='img/i_offline.png' title="Status" width="35" height="35"/>
 		<img id="refresh" src='img/refresh.png' title="Refresh" width="35" height="35"/>
-		<!-- script>window.jQuery || document.write('<script type="text/javascript" src="js/jquery-1.7.2.min.js"><\/script>')</script-->
-		
+		<script>window.jQuery || document.write('<script type="text/javascript" src="js/jquery-1.7.2.min.js"><\/script>')</script>
+		<script type="text/javascript" src="js/jquery.touchSwipe.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 		<script type="text/javascript"src="js/alertify.min.js"></script>
 		<script type="text/javascript" src="js/bundle.js"></script>
