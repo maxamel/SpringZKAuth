@@ -2,7 +2,7 @@ var http = require('http');
 var crypto = require('crypto');
 var bigInt = require('big-integer');
 var Stack = require('stack-lifo');
-var $ = require('jQuery');
+//var $ = require('jQuery');
 //var kafka = require('no-kafka');
 
 var destination = "localhost:8080"
@@ -83,52 +83,52 @@ $(function(){
 
 			// Show form
 			showForm(key);
-			
 		});
-			// Callback to execute when swipe is completed
-			var swipeCallback = function(event) {
-				var srcElement = $(event.srcElement) || $(event.target);
-				// Add/remove image to delete an entry
-				if (srcElement.find('img').length == 0) {
-					// Delete swipe-icons when click other elements
-					container.find('h2 .swipe-delete').remove();
 
-					srcElement.prepend(function() {
-						return $('<span><img class="swipe-delete" src="img/i_delete.png" /></span>').click(deleteEntry);
-					});
-				} else {
-					srcElement.find('img').remove();
+		// Callback to execute when swipe is completed
+		var swipeCallback = function(event) {
+			var srcElement = $(event.srcElement) || $(event.target);
+			// Add/remove image to delete an entry
+			if (srcElement.find('img').length == 0) {
+				// Delete swipe-icons when click other elements
+				container.find('h2 .swipe-delete').remove();
+
+				srcElement.prepend(function() {
+					return $('<span><img class="swipe-delete" src="img/i_delete.png" /></span>').click(deleteEntry);
+				});
+			} else {
+				srcElement.find('img').remove();
+			}
+		}
+
+		// Callback for clicking in an entry title
+		var clickCallback = function(event, target) {
+			target = $(target);
+
+			// Check if clicked element is a H2
+			if (target.get(0).tagName == 'H2') {
+				// Collapse all items except the selected one
+				var isSelected = target.parent().hasClass(SEL_CLASS);
+				$('article').removeClass(SEL_CLASS);
+				if (!isSelected) {
+					target.parent().addClass(SEL_CLASS);
 				}
 			}
-
-			// Callback for clicking in an entry title
-			var clickCallback = function(event, target) {
-				target = $(target);
-
-				// Check if clicked element is a H2
-				if (target.get(0).tagName == 'H2') {
-					// Collapse all items except the selected one
-					var isSelected = target.parent().hasClass(SEL_CLASS);
-					$('article').removeClass(SEL_CLASS);
-					if (!isSelected) {
-						target.parent().addClass(SEL_CLASS);
-					}
-				}
-					
-				if (!target.hasClass('swipe-delete')) {
-					// Delete swipe-icons when click other elements
-					container.find('h2 .swipe-delete').remove();
-				}
+				
+			if (!target.hasClass('swipe-delete')) {
+				// Delete swipe-icons when click other elements
+				container.find('h2 .swipe-delete').remove();
 			}
+		}
 
-			// Capture swipe (left or right)
-			var swipeOptions = {
-				click:clickCallback,
-				swipeLeft:swipeCallback,
-				swipeRight:swipeCallback,
-				threshold:50
-			};
-			$("article h2").swipe(swipeOptions);
+		// Capture swipe (left or right)
+		var swipeOptions = {
+			click:clickCallback,
+			swipeLeft:swipeCallback,
+			swipeRight:swipeCallback,
+			threshold:50
+		};
+		$("article h2").swipe(swipeOptions);
 	}
 
 	function resetForm() {
@@ -211,6 +211,29 @@ $(function(){
 	}
 
 	function assignEvents() {
+		// Link to open form
+		refresh.click(function() {
+			if (cache.name == "")
+			{
+				authenticateForm(authenticate);
+			}
+			else
+			{
+				
+			}
+		});
+		
+		register.click(function() {
+			if (cache.name == "")
+			{
+				authenticateForm(register);
+			}
+			else
+			{
+				
+			}
+		});
+
 		$('h1').click(function() {
 			// Expand or collapse all items
 			if (collapse) {
@@ -226,29 +249,7 @@ $(function(){
 			showForm('new');
 		});
 		
-		// Link to open form
-		refresh.click(function() {
-			if (cache.name == "")
-			{
-				authenticateForm();
-			}
-			else
-			{
-				
-			}
-		});
 		
-		register.click(function() {
-			if (cache.name == "")
-			{
-				authenticateForm();
-			}
-			else
-			{
-				
-			}
-		});
-
 		// Link to back to list
 		$('#btnCancel').click(function() {
 			resetForm();
@@ -275,9 +276,19 @@ $(function(){
 	
 	function authenticateForm(type) {
 		$('#formSubmit').click(function() {
-			form
-			alert(formUsername);
-			alert(formPassword);
+			var command;
+			var path = "/zkauth/users/";
+			
+			if (type == register) command = "REGISTER";
+			else if (type = authenticate) 
+			{
+				command = "FETCH";
+				alert(document.getElementById("formUsername").value);
+				path = path.concat(document.getElementById("formUsername").value);
+			}
+			alert(command);
+			alert(path);
+			processCommand(command.concat(" ",path))
 		});
 		
 		alertify.genericDialog || alertify.dialog('genericDialog',function(){
