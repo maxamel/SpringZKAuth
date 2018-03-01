@@ -12,7 +12,6 @@ var destination = "localhost:8080"
 	var stack = new Stack();
 	
 	var cache = {
-			id: "",
 	        name: "",
 	        password: ""
 	};
@@ -66,6 +65,8 @@ $(function(){
 			// Save entries
 			saveEntries(entries);
 		});
+		
+		executeCommand("DELETE",titleField, contentField);
 	}
 
 	function assignEventsToEntries() {
@@ -186,7 +187,14 @@ $(function(){
 		// Save entry
 		entries[key] = json_entry;
 		saveEntries(entries);
-
+		
+		/***************
+		 * 		Submit diary entry
+		 * 		
+		 * 
+		 ***************/
+		executeCommand(command, );
+		
 		// Reassign events
 		assignEventsToEntries();
 
@@ -215,22 +223,14 @@ $(function(){
 		refresh.click(function() {
 			if (cache.name == "")
 			{
-				authenticateForm(authenticate);
-			}
-			else
-			{
-				
+				authenticateForm("REFRESH","/zkauth/users/");
 			}
 		});
 		
 		register.click(function() {
 			if (cache.name == "")
 			{
-				authenticateForm(register);
-			}
-			else
-			{
-				
+				authenticateForm("REGISTER","/zkauth/users/");
 			}
 		});
 
@@ -274,21 +274,18 @@ $(function(){
 
 	}
 	
-	function authenticateForm(type) {
+	function authenticateForm(command, url) {
 		$('#formSubmit').click(function() {
-			var command;
-			var path = "/zkauth/users/";
+			cache.name = document.getElementById("formUsername").value;
+			predigested_password = document.getElementById("formPassword").value;
 			
-			if (type == register) command = "REGISTER";
-			else if (type = authenticate) 
-			{
-				command = "FETCH";
-				alert(document.getElementById("formUsername").value);
-				path = path.concat(document.getElementById("formUsername").value);
-			}
-			alert(command);
-			alert(path);
-			processCommand(command.concat(" ",path))
+			var object = {};
+	        gen = bigInt(g,16);
+	        mod = bigInt(N,16);
+	        hash = crypto.createHash('sha256');
+	        cache.password = bigInt(hash.update(predigested_password).digest("hex"), 16);
+	        
+	        executeCommand(command, url);
 		});
 		
 		alertify.genericDialog || alertify.dialog('genericDialog',function(){
@@ -453,7 +450,73 @@ $(function(){
 			    console.log("Unknown command");
 			    return;
 		}
-	    x = result[1].split(':');
+	    x = destination.split(':');
+	    
+	    console.log(meth + " " + url + " " + body);
+	    
+	    var options = {
+			  host: x[0],
+			  port: x[1],
+			  path: url,
+			  method: meth,
+			  headers : heads
+		};
+		console.log(JSON.stringify(options));
+	    sendRequestOptions(options,body);
+	    body = "";
+	}
+	
+	function executeCommand(command, title, content)
+	{
+	    meth = "DEFAULT";
+	    url = "/zkauth/";
+	    suburluser = "users/";
+	    suburldiary = "diary/"
+	    object = {};
+	    body = "";
+	    heads = {}
+	    heads["content-type"] = "application/json";
+	    switch(command)
+	    {
+			/*case "FETCH":
+				meth = 'GET';
+				url += result[2];
+			    break;
+			    */
+			case "REMOVE":
+				meth = 'DELETE';
+				url += suburluser;
+			    break;
+			case "REGISTER":
+				meth = 'POST';
+				url += suburluser;
+				object.name = cache.username;
+				object.passwordless = cache.password;
+				body = JSON.stringify(object);
+				heads["content-length"] = body.length;
+			    break;
+			case "ADD":
+				meth = 'POST';
+				url += result[2];
+				object.username = cache.username;
+				object.entryname = title;
+				object.content = content;
+				body = JSON.stringify(object);
+				heads["content-length"] = body.length;
+			    break;
+			case "DELETE":
+				meth = 'DELETE';
+				url += suburldiary + cache.name + "/" + title;
+			    break;
+			case "FETCH":
+				meth = 'GET';
+				url += suburldiary + cache.name;
+			    break;
+			default:
+			    console.log("Unknown command");
+			    return;
+		}
+	    x = destination.split(':');
 	    
 	    console.log(meth + " " + url + " " + body);
 	    

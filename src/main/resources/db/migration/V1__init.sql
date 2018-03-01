@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS diary (
   last_modified_by   VARCHAR(255),
   `username`         VARCHAR(255)		NOT NULL,
   `entryname`        VARCHAR(255)		NOT NULL,
-  `content`			 VARCHAR(255)		NOT NULL,
+  `content`			 VARCHAR(600)		NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UNIQUE_USERENTRY_NAME` (`username`,`entryname`)
 );

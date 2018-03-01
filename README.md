@@ -76,6 +76,8 @@ npm install no-kafka-slim
 npm install jquery
 npm install -g browserify
 npm install alertify
+
+browserify script.js -o bundle.js
 ```
 
 Open your Kafka server.properties and make sure the following lines are present:
