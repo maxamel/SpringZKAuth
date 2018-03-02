@@ -9,11 +9,12 @@ import org.I0Itec.zkclient.exception.ZkMarshallingError;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
@@ -26,18 +27,20 @@ import kafka.admin.RackAwareMode;
 import kafka.utils.ZKStringSerializer;
 import kafka.utils.ZkUtils;
 
-@Configuration
+
+@Service
+@ConditionalOnProperty(value = "kafka.enabled", havingValue = "true")
 public class KafkaAgentServiceImpl implements KafkaAgentService{
 
-    private final KafkaTemplate<String, ChallengeDto> kafkaTemplate;
+    private KafkaTemplate<String, ChallengeDto> kafkaTemplate;
 
-    private final ZkUtils zkUtils;
+    private ZkUtils zkUtils;
 
     private final HashSet<String> openTopics = new HashSet<String>();
 
-    @Autowired
-    public KafkaAgentServiceImpl(@Value("${kafka.zookeeper.url}") String zkAddress, KafkaTemplate<String, ChallengeDto> kafkaTemplate) {
-        ZkClient zkClient = new ZkClient(zkAddress,10000,10000);
+    public KafkaAgentServiceImpl(@Value("${kafka.zookeeper.url}") String zkAddress, KafkaTemplate<String, ChallengeDto> kafkaTemplate)
+    {
+    	ZkClient zkClient = new ZkClient(zkAddress,10000,10000);
         zkClient.setZkSerializer(getZkSerializer());
         boolean isSecureKafkaCluster = false;
         // ZkUtils for Kafka was used in Kafka 0.9.0.0 for the AdminUtils API

@@ -28,7 +28,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
     @Autowired
     private UserRepository repository;
     
-    @Autowired
+    @Autowired(required = false)
     private KafkaAgentService producer;
     
     @Value("${security.crypto.generator}")

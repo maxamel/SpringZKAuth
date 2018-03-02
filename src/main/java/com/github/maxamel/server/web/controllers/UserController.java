@@ -45,8 +45,8 @@ public class UserController {
             @ApiResponse(code = 428, message = "Invalid user info", response = ErrorDto.class)})
     @ResponseStatus(code = HttpStatus.CREATED)
     @PostMapping
-    public UserDto register(@Validated @RequestBody UserDto productDto) {
-    	return userService.register(productDto);
+    public UserDto register(@Validated @RequestBody UserDto dto) {
+    	return userService.register(dto);
     }
 
     @ApiOperation("Delete user")

@@ -28,13 +28,10 @@ $(function(){
 	var collapse = true,
 		location = null
 
-	var register = 1;
-	var authenticate = 2;
-		
 	var container = $('section.entries'),
 		titleField = $('#title'),
-		formUsername = $('#formUsername');
-		formPassword = $('#formPassword');
+		formUsername = $('#formUsername'),
+		formPassword = $('#formPassword'),
 		contentField = $('#content'),
 		status = $('#status'),
 		refresh = $('#refresh'),
@@ -66,7 +63,7 @@ $(function(){
 			saveEntries(entries);
 		});
 		
-		executeCommand("DELETE",titleField, contentField);
+		executeCommand("DELETE");
 	}
 
 	function assignEventsToEntries() {
@@ -193,7 +190,6 @@ $(function(){
 		 * 		
 		 * 
 		 ***************/
-		executeCommand(command, );
 		
 		// Reassign events
 		assignEventsToEntries();
@@ -223,14 +219,14 @@ $(function(){
 		refresh.click(function() {
 			if (cache.name == "")
 			{
-				authenticateForm("REFRESH","/zkauth/users/");
+				authenticateForm("REFRESH");
 			}
 		});
 		
 		register.click(function() {
 			if (cache.name == "")
 			{
-				authenticateForm("REGISTER","/zkauth/users/");
+				authenticateForm("REGISTER");
 			}
 		});
 
@@ -274,7 +270,7 @@ $(function(){
 
 	}
 	
-	function authenticateForm(command, url) {
+	function authenticateForm(command) {
 		$('#formSubmit').click(function() {
 			cache.name = document.getElementById("formUsername").value;
 			predigested_password = document.getElementById("formPassword").value;
@@ -285,7 +281,7 @@ $(function(){
 	        hash = crypto.createHash('sha256');
 	        cache.password = bigInt(hash.update(predigested_password).digest("hex"), 16);
 	        
-	        executeCommand(command, url);
+	        executeCommand(command);
 		});
 		
 		alertify.genericDialog || alertify.dialog('genericDialog',function(){
@@ -490,15 +486,15 @@ $(function(){
 			case "REGISTER":
 				meth = 'POST';
 				url += suburluser;
-				object.name = cache.username;
+				object.name = cache.name;
 				object.passwordless = cache.password;
 				body = JSON.stringify(object);
 				heads["content-length"] = body.length;
 			    break;
 			case "ADD":
 				meth = 'POST';
-				url += result[2];
-				object.username = cache.username;
+				url += suburldiary;
+				object.username = cache.name;
 				object.entryname = title;
 				object.content = content;
 				body = JSON.stringify(object);
@@ -534,15 +530,15 @@ $(function(){
 
 	function sendRequestOptions(options, body)
 	{
-	    if (solution != "") options.headers["ZKAuth-Token"] = solution.toString();
+		alertify.message("Sending message...");
+		alert('message');
+		if (solution != "") options.headers["ZKAuth-Token"] = solution.toString();
 		var req = http.request(options, function(r1){
 		      status1 = r1.statusCode;
-		      console.log('STATUS #1: ' + status1);
 		      
 	      	  r1.on('data', function(chunk){
 	      	    response = JSON.parse(chunk);
-	      	    console.log("Got chunk " + chunk + " message: " + response["message"]);
-	    	    
+	      	    alertify.notify("Got chunk " + chunk + " message: " + response["message"]);
 	      	    if (status1 == 401) 
 	      	    {
 	      	        challenge = bigInt(response["challenge"], 10);
@@ -555,23 +551,26 @@ $(function(){
 	      	    	status2 = r2.statusCode;
 	      	    	console.log('STATUS #2: ' + status2);
 	      	      	  r2.on('data', function(chunk){
-	      	      	    console.log("Got chunk " + chunk);
+	      	      	    alertify.notify("Got chunk " + chunk + " message: " + response["message"]);
 	      	      	    if (status2 == 200 || status2 == 201) 
 	      	      	    {
+	      	      	    	alertify.success('Request Success'); 
 	      	      	    	json = JSON.parse(chunk);
 	      	      	    	spinUpKafkaConsumer(json["name"]);
 	      	      	    }
 	      	      	    else 
 	      	      	    {
-	      	      	        stack.push(globalcommand);
-	                        console.log("Incorrect password, please try again..." + cache.name);
-	                        return;
+	      	      	        alertify.error('Request Error'); 
 	      	      	    }
 	      	      	  });
 	      	      	}).on("error", function(e){
 	      	      	  console.log("Got error: " + e.message);
 	      	      	});
 	      	      	ret.end();
+	      	   	}
+	      	   	else
+	      	   	{
+	      	   		alertify.error(status1); 
 	      	   	}
 	      	  });
 	      	}).on("error", function(e){
