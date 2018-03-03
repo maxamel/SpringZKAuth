@@ -57,7 +57,7 @@ public class DataExceptionHandlers {
                                         .map(Object::toString)
                                         .collect(Collectors.joining(", ")))
                                 .build())
-                        .message(ex.getLocalizedMessage())
+                        .message(ex.getMessage())
                         .build();
             }
         }

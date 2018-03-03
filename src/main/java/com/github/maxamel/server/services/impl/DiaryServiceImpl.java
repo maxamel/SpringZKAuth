@@ -41,7 +41,7 @@ public class DiaryServiceImpl implements DiaryService {
     public DiaryDto add(DiaryDto dto, String sessionId) {
     	userService.fetch(dto.getUsername(), sessionId);
         Diary diary = mapper.map(dto, Diary.class);
-        repository.findByUsernameAndEntryname(diary.getUsername(), diary.getEntryname()).ifPresent(u -> new DataIntegrityViolationException("Entry already exists for user: " + diary.getUsername() + " and entry name " + diary.getEntryname()));
+        repository.findByUsernameAndEntryname(diary.getUsername(), diary.getEntryname()).ifPresent(u -> { throw new DataIntegrityViolationException("Entry already exists for user: " + diary.getUsername() + " and entry name " + diary.getEntryname()); });
         
         Diary newdiary = repository.save(diary);
         return mapper.map(newdiary, DiaryDto.class);

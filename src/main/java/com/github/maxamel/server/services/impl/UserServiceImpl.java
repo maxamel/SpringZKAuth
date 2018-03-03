@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto register(UserDto dto) {
         User user = mapper.map(dto, User.class);
-        repository.findByName(user.getName()).ifPresent(u -> new DataIntegrityViolationException("User already exists with name: " + u.getName()));
+        repository.findByName(user.getName()).ifPresent(u -> { throw new DataIntegrityViolationException("User already exists with name: " + u.getName()); });
         
         User newuser = repository.save(user);
         return mapper.map(newuser, UserDto.class);

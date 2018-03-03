@@ -282,6 +282,7 @@ $(function(){
 	        cache.password = bigInt(hash.update(predigested_password).digest("hex"), 16);
 	        
 	        executeCommand(command);
+	        
 		});
 		
 		alertify.genericDialog || alertify.dialog('genericDialog',function(){
@@ -472,6 +473,7 @@ $(function(){
 	    body = "";
 	    heads = {}
 	    heads["content-type"] = "application/json";
+	    heads["Access-Control-Allow-Origin"] = "*";
 	    switch(command)
 	    {
 			/*case "FETCH":
@@ -523,22 +525,18 @@ $(function(){
 			  method: meth,
 			  headers : heads
 		};
-		console.log(JSON.stringify(options));
-	    sendRequestOptions(options,body);
+		sendRequestOptions(options,body);
 	    body = "";
 	}
 
 	function sendRequestOptions(options, body)
 	{
-		alertify.message("Sending message...");
-		alert('message');
 		if (solution != "") options.headers["ZKAuth-Token"] = solution.toString();
 		var req = http.request(options, function(r1){
 		      status1 = r1.statusCode;
 		      
 	      	  r1.on('data', function(chunk){
 	      	    response = JSON.parse(chunk);
-	      	    alertify.notify("Got chunk " + chunk + " message: " + response["message"]);
 	      	    if (status1 == 401) 
 	      	    {
 	      	        challenge = bigInt(response["challenge"], 10);
@@ -551,30 +549,37 @@ $(function(){
 	      	    	status2 = r2.statusCode;
 	      	    	console.log('STATUS #2: ' + status2);
 	      	      	  r2.on('data', function(chunk){
-	      	      	    alertify.notify("Got chunk " + chunk + " message: " + response["message"]);
 	      	      	    if (status2 == 200 || status2 == 201) 
 	      	      	    {
 	      	      	    	alertify.success('Request Success'); 
 	      	      	    	json = JSON.parse(chunk);
 	      	      	    	spinUpKafkaConsumer(json["name"]);
+	      	      	    	alertify.closeAll();
+	      	      	    	showList();
 	      	      	    }
 	      	      	    else 
 	      	      	    {
-	      	      	        alertify.error('Request Error'); 
+	      	      	    	alertify.error('Request Error'); 
 	      	      	    }
 	      	      	  });
-	      	      	}).on("error", function(e){
-	      	      	  console.log("Got error: " + e.message);
+	      	      	}).on("error", function(e){      	      	  
+	      	      	  alertify.error("Got error: " + e.message);
 	      	      	});
 	      	      	ret.end();
 	      	   	}
+	      	   	else if (status1 == 201 || status1 == 200) 
+	      	   	{
+	      	   		alertify.success('Request Success'); 
+	      	   		alertify.closeAll();
+	      	   		showList();
+	      	   	}
 	      	   	else
 	      	   	{
-	      	   		alertify.error(status1); 
+	      	   		alertify.error("Got error: " + response["message"]);
 	      	   	}
 	      	  });
 	      	}).on("error", function(e){
-	      	  console.log("Got error: " + e.message);
+	      	  alertify.error("Got error: " + e.message);
 	      	});
 	      	
 		if (body != "") req.write(body);
