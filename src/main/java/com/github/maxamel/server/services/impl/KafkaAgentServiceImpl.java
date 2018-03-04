@@ -27,14 +27,13 @@ import kafka.admin.RackAwareMode;
 import kafka.utils.ZKStringSerializer;
 import kafka.utils.ZkUtils;
 
-
 @Service
 @ConditionalOnProperty(value = "kafka.enabled", havingValue = "true")
 public class KafkaAgentServiceImpl implements KafkaAgentService{
 
-    private KafkaTemplate<String, ChallengeDto> kafkaTemplate;
+    private final KafkaTemplate<String, ChallengeDto> kafkaTemplate;
 
-    private ZkUtils zkUtils;
+    private final ZkUtils zkUtils;
 
     private final HashSet<String> openTopics = new HashSet<String>();
 

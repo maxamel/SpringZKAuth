@@ -216,18 +216,24 @@ $(function(){
 
 	function assignEvents() {
 		// Link to open form
-		refresh.click(function() {
+		refresh.unbind('click').click(function() {
 			if (cache.name == "")
 			{
 				authenticateForm("REFRESH");
 			}
+			else executeCommand("REFRESH");
 		});
 		
-		register.click(function() {
+		register.unbind('click').click(function() {
+				authenticateForm("REGISTER");
+		});
+		
+		$('#btnSubmit').unbind('click').click(function() {
 			if (cache.name == "")
 			{
-				authenticateForm("REGISTER");
+				authenticateForm("ADD");
 			}
+			else executeCommand("ADD");
 		});
 
 		$('h1').click(function() {
@@ -241,13 +247,13 @@ $(function(){
 		});
 
 		// Link to open form
-		newEntry.click(function() {
+		newEntry.unbind('click').click(function() {
 			showForm('new');
 		});
 		
 		
 		// Link to back to list
-		$('#btnCancel').click(function() {
+		$('#btnCancel').unbind('click').click(function() {
 			resetForm();
 			showList();
 		});
@@ -261,7 +267,7 @@ $(function(){
 		});
 
 		// Form submit
-		storeEntry.submit(submitForm);
+		// storeEntry.submit(submitForm);
 
 		// Listener for changes in storage
 		if ('storage' in navigator) {
@@ -271,16 +277,20 @@ $(function(){
 	}
 	
 	function authenticateForm(command) {
-		$('#formSubmit').click(function() {
+		$('#formSubmit').unbind('click').click(function() {
 			cache.name = document.getElementById("formUsername").value;
-			predigested_password = document.getElementById("formPassword").value;
+			hash = crypto.createHash('sha256');
+			cache.password = bigInt(hash.update(document.getElementById("formPassword").value).digest("hex"), 16);
+			
+			
+			/*predigested_password = document.getElementById("formPassword").value;
 			
 			var object = {};
 	        gen = bigInt(g,16);
 	        mod = bigInt(N,16);
 	        hash = crypto.createHash('sha256');
 	        cache.password = bigInt(hash.update(predigested_password).digest("hex"), 16);
-	        
+	        */
 	        executeCommand(command);
 	        
 		});
@@ -363,6 +373,10 @@ $(function(){
 		return '<article rel="'+key+'"><h2>'+entry.title+'</h2><p>'+actionLinks+entry.content+'<span class="time">'+date.toLocaleString()+'</span>'+location+'</p></article>';
 	}
 
+	function runEntries(json) {
+		alert(json);
+	}
+
 	function loadEntries() {
    		// Empty renderized content
     	container.empty();
@@ -380,90 +394,7 @@ $(function(){
     	assignEventsToEntries();
 	}
 	
-	function processCommand(string)
-	{
-	    globalcommand = string;
-	    if (!stack.isEmpty())
-	    {
-	        action = stack.pop();
-	        console.log("Got password " + string);
-	        var object = {};
-	        gen = bigInt(g,16);
-	        mod = bigInt(N,16);
-	        hash = crypto.createHash('sha256');
-	        pass = bigInt(hash.update(string).digest("hex"), 16);
-	        if (action.indexOf("REGISTER")!=-1) 
-	        {
-	            temp = gen.modPow(pass, mod);
-	            registerpass = dec2hex(temp.toString());
-	        }
-	        else 
-	        {
-	        	cache.password = pass;
-	        }
-	        
-	        return processCommand(action);
-	    }	
-	    
-	    arr = string.split(' '),
-	    result = arr.splice(0,2);
-	    result.push(arr.join(' ')); 
-	    
-		if ((result[0] != "REGISTER" && cache.password == "") || (result[0] == "REGISTER" && registerpass == "")) 
-		{
-		    stack.push(string);
-		    console.log("Please enter password for new user " + result[2]);
-		    return;
-		}  
-	    
-	    if (result.length < 2) return;
-	    
-	    meth = "DEFAULT";
-	    url = "/zkauth/users/";
-	    object = {};
-	    body = "";
-	    heads = {}
-	    heads["content-type"] = "application/json";
-	    switch(result[0])
-	    {
-			case "FETCH":
-				meth = 'GET';
-				url += result[2];
-			    break;
-			case "REMOVE":
-				meth = 'DELETE';
-				url += result[2];
-			    break;
-			case "REGISTER":
-				meth = 'POST';
-				object.name = result[2];
-				object.passwordless = registerpass;
-				registerpass = "";
-				body = JSON.stringify(object);
-				heads["content-length"] = body.length;
-				//heads["transfer-encoding"] = '';
-			    break;
-			default:
-			    console.log("Unknown command");
-			    return;
-		}
-	    x = destination.split(':');
-	    
-	    console.log(meth + " " + url + " " + body);
-	    
-	    var options = {
-			  host: x[0],
-			  port: x[1],
-			  path: url,
-			  method: meth,
-			  headers : heads
-		};
-		console.log(JSON.stringify(options));
-	    sendRequestOptions(options,body);
-	    body = "";
-	}
-	
-	function executeCommand(command, title, content)
+	function executeCommand(command)
 	{
 	    meth = "DEFAULT";
 	    url = "/zkauth/";
@@ -489,16 +420,25 @@ $(function(){
 				meth = 'POST';
 				url += suburluser;
 				object.name = cache.name;
-				object.passwordless = cache.password;
+				
+		        gen = bigInt(g,16);
+		        mod = bigInt(N,16);
+		        hash = crypto.createHash('sha256');
+		        temp = gen.modPow(cache.password, mod);
+	            registerpass = dec2hex(temp.toString());
+		        
+		        object.passwordless = registerpass;
+				
 				body = JSON.stringify(object);
 				heads["content-length"] = body.length;
 			    break;
 			case "ADD":
 				meth = 'POST';
 				url += suburldiary;
+				alert(titleField.value + " " + contentField.value);
 				object.username = cache.name;
-				object.entryname = title;
-				object.content = content;
+				object.entryname = titleField.value;
+				object.content = contentField.value;
 				body = JSON.stringify(object);
 				heads["content-length"] = body.length;
 			    break;
@@ -506,7 +446,7 @@ $(function(){
 				meth = 'DELETE';
 				url += suburldiary + cache.name + "/" + title;
 			    break;
-			case "FETCH":
+			case "REFRESH":
 				meth = 'GET';
 				url += suburldiary + cache.name;
 			    break;
@@ -553,13 +493,15 @@ $(function(){
 	      	      	    {
 	      	      	    	alertify.success('Request Success'); 
 	      	      	    	json = JSON.parse(chunk);
-	      	      	    	spinUpKafkaConsumer(json["name"]);
+	      	      	    	runEntries(json);
+	      	      	    	//spinUpKafkaConsumer(json["name"]);
 	      	      	    	alertify.closeAll();
-	      	      	    	showList();
+	      	      	    	document.getElementById("status").src='img/i_online.png';
 	      	      	    }
 	      	      	    else 
 	      	      	    {
 	      	      	    	alertify.error('Request Error'); 
+	      	      	    	document.getElementById("status").src='img/i_offline.png';
 	      	      	    }
 	      	      	  });
 	      	      	}).on("error", function(e){      	      	  
@@ -570,8 +512,10 @@ $(function(){
 	      	   	else if (status1 == 201 || status1 == 200) 
 	      	   	{
 	      	   		alertify.success('Request Success'); 
+	      	   		json = JSON.parse(chunk);
+	      	   		runEntries(json);
 	      	   		alertify.closeAll();
-	      	   		showList();
+	      	   		document.getElementById("status").src='img/i_online.png';
 	      	   	}
 	      	   	else
 	      	   	{
