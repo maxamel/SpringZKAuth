@@ -51,8 +51,10 @@ $(function(){
 	// Function definitions
 
 	function deleteEntry() {
-		var article = $(this).closest('article');
-
+		
+		var title = $(this).closest('article').children('h2').text();
+		titleField.val(title);
+		/*
 		// Delete entry from list
 		var entries = entriesList();
 		delete entries[article.attr('rel')];
@@ -62,8 +64,13 @@ $(function(){
 			// Save entries
 			saveEntries(entries);
 		});
-		
+		*/
 		executeCommand("DELETE");
+		// Show entries list
+		showList();
+
+		// Reset form
+		resetForm();
 	}
 
 	function assignEventsToEntries() {
@@ -163,8 +170,7 @@ $(function(){
 
 		// Create new JSON entry
 		var json_entry = {'title': titleField.val(),
-							'content': contentField.val(),
-							'location': location};
+							'content': contentField.val()};
 
 		var entries = entriesList();
 		
@@ -182,23 +188,17 @@ $(function(){
 		container.prepend(entry_html);
 		
 		// Save entry
-		entries[key] = json_entry;
-		saveEntries(entries);
-		
-		/***************
-		 * 		Submit diary entry
-		 * 		
-		 * 
-		 ***************/
-		
+		//entries[key] = json_entry;
+		//saveEntries(entries);
+	
 		// Reassign events
 		assignEventsToEntries();
 
 		// Show entries list
-		showList();
+		//showList();
 
 		// Reset form
-		resetForm();
+		//resetForm();
 	}
 
 	function storageChanged(e) {
@@ -233,7 +233,14 @@ $(function(){
 			{
 				authenticateForm("ADD");
 			}
-			else executeCommand("ADD");
+			else 
+			{	
+				executeCommand("ADD");
+				// Show entries list
+				showList();
+				// Reset form
+				resetForm();
+			}
 		});
 
 		$('h1').click(function() {
@@ -322,7 +329,7 @@ $(function(){
 		    };
 		});
 		//force focusing password box
-		alertify.genericDialog ($('#loginForm')[0]).set('selector', 'input[type="password"]');
+		alertify.genericDialog ($('#loginForm')[0]).set('selector', 'input[type="text"]');
 		
 	}
 	
@@ -370,11 +377,21 @@ $(function(){
 		var actionLinks = '<span class="actions"><img class="edit" src="img/i_edit.png" /><img class="delete" src="img/i_delete.png" /></span>';
 		var date = new Date(key * 1000);
 
-		return '<article rel="'+key+'"><h2>'+entry.title+'</h2><p>'+actionLinks+entry.content+'<span class="time">'+date.toLocaleString()+'</span>'+location+'</p></article>';
+		return '<article rel="'+key+'"><h2>'+entry.title+'</h2><p>'+actionLinks+entry.content+'<span class="time">'+date.toLocaleString()+'</span></p></article>';
 	}
 
 	function runEntries(json) {
-		alert(json);
+		alert(JSON.stringify(json));
+		container.empty();
+		for (var jsonizedEntry in json) {
+			var entry = {}
+			entry.title = json[jsonizedEntry]["entryname"];
+			entry.content = json[jsonizedEntry]["content"];
+			var key = Math.round(new Date().getTime() / 1000);
+    		container.prepend(htmlForEntry(key, entry));
+    	}
+		
+		assignEventsToEntries();
 	}
 
 	function loadEntries() {
@@ -435,16 +452,16 @@ $(function(){
 			case "ADD":
 				meth = 'POST';
 				url += suburldiary;
-				alert(titleField.value + " " + contentField.value);
+				alert(titleField.val() + " " + contentField.val());
 				object.username = cache.name;
-				object.entryname = titleField.value;
-				object.content = contentField.value;
+				object.entryname = titleField.val();
+				object.content = contentField.val();
 				body = JSON.stringify(object);
 				heads["content-length"] = body.length;
 			    break;
 			case "DELETE":
 				meth = 'DELETE';
-				url += suburldiary + cache.name + "/" + title;
+				url += suburldiary + cache.name + "/" + titleField.val();
 			    break;
 			case "REFRESH":
 				meth = 'GET';
@@ -465,17 +482,19 @@ $(function(){
 			  method: meth,
 			  headers : heads
 		};
-		sendRequestOptions(options,body);
+	    var op = 0;
+	    if (command == "REFRESH") op = 1;
+	    if (command == "ADD" || command == "REGISTER" || command == "DELETE") op = 2;
+		sendRequestOptions(options,body,op);
 	    body = "";
 	}
 
-	function sendRequestOptions(options, body)
+	function sendRequestOptions(options, body, op)
 	{
 		if (solution != "") options.headers["ZKAuth-Token"] = solution.toString();
 		var req = http.request(options, function(r1){
 		      status1 = r1.statusCode;
-		      
-	      	  r1.on('data', function(chunk){
+		      r1.on('data', function(chunk){
 	      	    response = JSON.parse(chunk);
 	      	    if (status1 == 401) 
 	      	    {
@@ -491,9 +510,13 @@ $(function(){
 	      	      	  r2.on('data', function(chunk){
 	      	      	    if (status2 == 200 || status2 == 201) 
 	      	      	    {
-	      	      	    	alertify.success('Request Success'); 
 	      	      	    	json = JSON.parse(chunk);
-	      	      	    	runEntries(json);
+	      	      	    	if (op == 1) runEntries(json);
+	      	      	    	if (op == 2) 
+	      	      	    	{
+	      	      	    		executeCommand("REFRESH");
+	      	      	    	}
+	      	      	    	else alertify.success('Request Success'); 
 	      	      	    	//spinUpKafkaConsumer(json["name"]);
 	      	      	    	alertify.closeAll();
 	      	      	    	document.getElementById("status").src='img/i_online.png';
@@ -507,13 +530,18 @@ $(function(){
 	      	      	}).on("error", function(e){      	      	  
 	      	      	  alertify.error("Got error: " + e.message);
 	      	      	});
+	      	    	if (body != "") ret.write(body);
 	      	      	ret.end();
 	      	   	}
 	      	   	else if (status1 == 201 || status1 == 200) 
 	      	   	{
-	      	   		alertify.success('Request Success'); 
 	      	   		json = JSON.parse(chunk);
-	      	   		runEntries(json);
+	      	   		if (op == 1) runEntries(json);
+	      	    	if (op == 2) 
+	      	    	{
+	      	    		executeCommand("REFRESH");
+	      	    	}
+	      	    	else alertify.success('Request Success');
 	      	   		alertify.closeAll();
 	      	   		document.getElementById("status").src='img/i_online.png';
 	      	   	}
@@ -522,6 +550,10 @@ $(function(){
 	      	   		alertify.error("Got error: " + response["message"]);
 	      	   	}
 	      	  });
+		      if (status1 == 200 && op == 2) 
+		      {
+		    	 executeCommand("REFRESH");
+		      }	
 	      	}).on("error", function(e){
 	      	  alertify.error("Got error: " + e.message);
 	      	});

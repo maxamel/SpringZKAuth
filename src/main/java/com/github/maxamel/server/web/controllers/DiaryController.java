@@ -55,7 +55,7 @@ public class DiaryController {
 
     @ApiOperation("Delete entry")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Entrys has been removed"),
+            @ApiResponse(code = 200, message = "Entry has been removed"),
             @ApiResponse(code = 401, message = "Unauthorized Access"),
             @ApiResponse(code = 404, message = "Entry not found")})
     @ResponseStatus(HttpStatus.OK)
