@@ -9,11 +9,11 @@ import com.github.maxamel.server.web.dtos.DiaryDto;
  */
 public interface DiaryService {
 
-	DiaryDto add(DiaryDto dto, String sessionId);
+	public DiaryDto add(DiaryDto dto, String sessionId);
 
-    void removeByUsernameAndEntryname(String username, String entryname, String sessionId);
+    public void removeByUsernameAndEntryname(String username, String entryname, String sessionId);
     
-    DiaryDto fetch(String username, String entryname, String sessionId);
+    public DiaryDto fetch(String username, String entryname, String sessionId);
 
-    List<DiaryDto> fetchByUsername(String username, String sessionId);
+    public List<DiaryDto> fetchByUsername(String username, String sessionId);
 }

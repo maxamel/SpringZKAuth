@@ -78,16 +78,14 @@ $(function(){
 		$("article p img.delete").click(deleteEntry);
 		$("article p img.edit").click(function() {
 			// Get current entry
-			var entries = entriesList();
-			var key = $(this).closest('article').attr('rel');
-			var entry = entries[key];
-
-			// Populate form
-			titleField.val(entry.title);
-			contentField.val(entry.content);
+			var title = $(this).closest('article').children('h2').text();
+			titleField.val(title);
+			
+			var content = $(this).closest('article').children('p').text();
+			contentField.val(content);
 
 			// Show form
-			showForm(key);
+			showForm('real');
 		});
 
 		// Callback to execute when swipe is completed
@@ -277,9 +275,9 @@ $(function(){
 		// storeEntry.submit(submitForm);
 
 		// Listener for changes in storage
-		if ('storage' in navigator) {
-			window.addEventListener('storage', storageChanged, false); 
-		}
+		//if ('storage' in navigator) {
+		//	window.addEventListener('storage', storageChanged, false); 
+		//}
 
 	}
 	

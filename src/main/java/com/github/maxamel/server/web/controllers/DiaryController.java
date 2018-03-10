@@ -45,7 +45,6 @@ public class DiaryController {
     @ApiOperation(value = "Add new entry")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Successfully created entry"),
-            @ApiResponse(code = 409, message = "Entry already exists"),
             @ApiResponse(code = 428, message = "Invalid user info", response = ErrorDto.class)})
     @ResponseStatus(code = HttpStatus.CREATED)
     @PostMapping

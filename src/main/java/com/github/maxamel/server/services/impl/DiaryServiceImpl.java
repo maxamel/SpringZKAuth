@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import org.springframework.stereotype.Service;
@@ -41,7 +40,6 @@ public class DiaryServiceImpl implements DiaryService {
     public DiaryDto add(DiaryDto dto, String sessionId) {
     	userService.fetch(dto.getUsername(), sessionId);
         Diary diary = mapper.map(dto, Diary.class);
-        repository.findByUsernameAndEntryname(diary.getUsername(), diary.getEntryname()).ifPresent(u -> { throw new DataIntegrityViolationException("Entry already exists for user: " + diary.getUsername() + " and entry name " + diary.getEntryname()); });
         
         Diary newdiary = repository.save(diary);
         return mapper.map(newdiary, DiaryDto.class);
@@ -50,10 +48,12 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     @Transactional
     public void removeByUsernameAndEntryname(String username, String entryname, String sessionId) {
+    	userService.fetch(username, sessionId);
         repository.deleteByUsernameAndEntryname(username, entryname);
     }
 
     @Override
+    @Transactional
     public DiaryDto fetch(String username, String entryname, String sessionId) {  
     	userService.fetch(username, sessionId);
         Diary diary = repository.findByUsernameAndEntryname(username, entryname).orElseThrow(() -> new EmptyResultDataAccessException("No diary entry found for user: " + username + " and entry " + entryname, 1));
@@ -61,10 +61,10 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
+    @Transactional
     public List<DiaryDto> fetchByUsername(String username, String sessionId) {
     	userService.fetch(username, sessionId);
         List<Diary> entries = repository.findByUsername(username);
         return entries.stream().map(d -> mapper.map(d, DiaryDto.class)).collect(Collectors.toList());
     }
-    
 }

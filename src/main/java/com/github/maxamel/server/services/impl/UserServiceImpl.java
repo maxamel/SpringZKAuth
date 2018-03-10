@@ -24,6 +24,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -81,7 +82,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto fetch(String name, String sessionId) {        
+    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {AccessDeniedException.class, EmptyResultDataAccessException.class})
+    public UserDto fetch(String name, String sessionId) throws AccessDeniedException, EmptyResultDataAccessException{        
         User user = repository.findByName(name).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + name, 1));
         
         if (user.getSecret()!=null && verify(user,sessionId)) 
@@ -95,8 +97,7 @@ public class UserServiceImpl implements UserService {
         return null;
     }
     
-    @Transactional
-    public boolean verify(User user,String response)
+    private boolean verify(User user,String response)
     {
         BigInteger passwordless = new BigInteger(user.getPasswordless(),16); 
         BigInteger secret = new BigInteger(user.getSecret(), 16);
@@ -128,7 +129,7 @@ public class UserServiceImpl implements UserService {
         return true;
     }
     
-    private void throwChallengedException(User user) {
+    private void throwChallengedException(User user) throws AccessDeniedException{
         if (user.getSecret() == null)
         {
             generateServerSecret(user);  
@@ -137,14 +138,13 @@ public class UserServiceImpl implements UserService {
         throw new AccessDeniedException(""+power);
     }
 
-    @Transactional
     public void generateServerSecret(User olduser) {
-        User user = repository.findByName(olduser.getName()).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + olduser.getName(), 1));
-        SecureRandom random = new SecureRandom(String.valueOf(System.currentTimeMillis()).getBytes(Charset.defaultCharset()));
-        BigInteger bigint =  new BigInteger(256, random);
-        user.setSecret(bigint.toString(16));
-        user.setSstatus(SessionStatus.INITIATING);
-        repository.save(user);
+    		User user = repository.findByName(olduser.getName()).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + olduser.getName(), 1));
+            SecureRandom random = new SecureRandom(String.valueOf(System.currentTimeMillis()).getBytes(Charset.defaultCharset()));
+            BigInteger bigint =  new BigInteger(256, random);
+            user.setSecret(bigint.toString(16));
+            user.setSstatus(SessionStatus.INITIATING);
+            repository.save(user);                
     }
 
     private void scheduleAuthTask(User user) 
