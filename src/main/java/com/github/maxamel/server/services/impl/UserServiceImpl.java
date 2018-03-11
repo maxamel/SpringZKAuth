@@ -5,6 +5,7 @@ import com.github.maxamel.server.web.dtos.UserDto;
 import com.github.maxamel.server.domain.model.User;
 import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.domain.repositories.UserRepository;
+import com.github.maxamel.server.services.DiaryService;
 import com.github.maxamel.server.services.ScheduleTaskService;
 import com.github.maxamel.server.services.UserService;
 
@@ -53,6 +54,9 @@ public class UserServiceImpl implements UserService {
     
     @Autowired
     private ScheduleTaskService scheduler;
+    
+    @Autowired
+    private DiaryService diaryService;
    
     @Autowired
     public UserServiceImpl(ModelMapper mapper, UserRepository repository) {
@@ -74,7 +78,11 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void removeByName(String name, String sessionId) {
         User user = repository.findByName(name).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + name, 1));
-        if (user.getSecret()!=null && verify(user,sessionId)) repository.deleteByName(name);
+        if (user.getSecret()!=null && verify(user,sessionId)) 
+        {
+            diaryService.removeAll(name, sessionId);
+            repository.deleteByName(name);
+        }
         else 
         {
             throwChallengedException(user);

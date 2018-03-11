@@ -22,6 +22,8 @@ public interface DiaryRepository {
     Optional<Diary> findByUsernameAndEntryname(String username, String entryname);
     
     List<Diary> findByUsername(String username);
+    
+    void flush();
 
     Diary save(Diary diary);
 

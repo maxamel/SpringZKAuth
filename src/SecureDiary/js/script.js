@@ -35,6 +35,7 @@ $(function(){
 		contentField = $('#content'),
 		status = $('#status'),
 		refresh = $('#refresh'),
+		remove = $('#remove'),
 		register = $('#register'),
 		newEntry = $('#newEntry'),
 		storeEntry = $('#storeEntry'),
@@ -78,14 +79,19 @@ $(function(){
 		$("article p img.delete").click(deleteEntry);
 		$("article p img.edit").click(function() {
 			// Get current entry
-			var title = $(this).closest('article').children('h2').text();
-			titleField.val(title);
+			var art = $(this).closest('article');
 			
-			var content = $(this).closest('article').children('p').text();
+			
+			var title = art.children('h2').text();
+			titleField.val(title);
+			titleField.readOnly = true;
+			
+			var dirtContent = art.children('p');
+			var content = dirtContent.clone().find('span').remove().end().text();
 			contentField.val(content);
 
 			// Show form
-			showForm('real');
+			showForm('edit');
 		});
 
 		// Callback to execute when swipe is completed
@@ -206,10 +212,10 @@ $(function(){
 	function entriesChanged() {
 		// Show message if there are no entries
 		noEntries.remove();
-    	if (container.html().length == 0) {
-    		container.after('<p id="noEntries">You have no entries yet</p>');
+    	/*if (container.html().length == 0) {
+    		container.after('<p id="noEntries">No more entries</p>');
     		noEntries = $('#noEntries');
-    	}
+    	}*/
 	}
 
 	function assignEvents() {
@@ -220,6 +226,14 @@ $(function(){
 				authenticateForm("REFRESH");
 			}
 			else executeCommand("REFRESH");
+		});
+		
+		remove.unbind('click').click(function() {
+			if (cache.name == "")
+			{
+				authenticateForm("REMOVE");
+			}
+			else executeCommand("REMOVE");
 		});
 		
 		register.unbind('click').click(function() {
@@ -340,10 +354,27 @@ $(function(){
 
 	function showForm(type) {
 		// Do the neccessary to show the form
+		var comm = "ADD";
+		if (type == 'edit') comm = "EDIT";
+		$('#btnSubmit').unbind('click').click(function() {
+			if (cache.name == "")
+			{
+				authenticateForm(comm);
+			}
+			else 
+			{	
+				executeCommand(comm);
+				// Show entries list
+				showList();
+				// Reset form
+				resetForm();
+			}
+		});
 		storeEntry.attr('rel',type);
 		container.hide();
 		newEntry.hide();
 		refresh.hide();
+		remove.hide();
 		register.hide();
 		noEntries.hide();
 		storeEntry.fadeIn('fast');
@@ -354,6 +385,7 @@ $(function(){
 		newEntry.show();
 		refresh.show();
 		register.show();
+		remove.show();
 		noEntries.show();		
 		storeEntry.hide();
 		container.fadeIn('fast');
@@ -422,14 +454,9 @@ $(function(){
 	    heads["Access-Control-Allow-Origin"] = "*";
 	    switch(command)
 	    {
-			/*case "FETCH":
-				meth = 'GET';
-				url += result[2];
-			    break;
-			    */
 			case "REMOVE":
 				meth = 'DELETE';
-				url += suburluser;
+				url += suburluser + cache.name;
 			    break;
 			case "REGISTER":
 				meth = 'POST';
@@ -450,7 +477,15 @@ $(function(){
 			case "ADD":
 				meth = 'POST';
 				url += suburldiary;
-				alert(titleField.val() + " " + contentField.val());
+				object.username = cache.name;
+				object.entryname = titleField.val();
+				object.content = contentField.val();
+				body = JSON.stringify(object);
+				heads["content-length"] = body.length;
+			    break;
+			case "EDIT":
+				meth = 'POST';
+				url += suburldiary;
 				object.username = cache.name;
 				object.entryname = titleField.val();
 				object.content = contentField.val();
@@ -482,7 +517,8 @@ $(function(){
 		};
 	    var op = 0;
 	    if (command == "REFRESH") op = 1;
-	    if (command == "ADD" || command == "REGISTER" || command == "DELETE") op = 2;
+	    if (command == "ADD" || command == "REGISTER" || command == "DELETE" || command == "EDIT") op = 2;
+	    if (command == "REMOVE") op = 3;
 		sendRequestOptions(options,body,op);
 	    body = "";
 	}
@@ -523,10 +559,12 @@ $(function(){
 	      	      	    {
 	      	      	    	alertify.error('Request Error'); 
 	      	      	    	document.getElementById("status").src='img/i_offline.png';
+	      	      	    	nullify();
 	      	      	    }
 	      	      	  });
 	      	      	}).on("error", function(e){      	      	  
-	      	      	  alertify.error("Got error: " + e.message);
+	      	      	  alertify.error(e.message);
+	      	      	  nullify();
 	      	      	});
 	      	    	if (body != "") ret.write(body);
 	      	      	ret.end();
@@ -545,19 +583,35 @@ $(function(){
 	      	   	}
 	      	   	else
 	      	   	{
-	      	   		alertify.error("Got error: " + response["message"]);
+	      	   		alertify.error(response["message"]);
+	      	   		nullify();
 	      	   	}
 	      	  });
-		      if (status1 == 200 && op == 2) 
+		      if (status1 == 200 && (op != 1)) 
 		      {
-		    	 executeCommand("REFRESH");
+		    	 if (op == 2) executeCommand("REFRESH");
+		    	 if (op == 3)
+		    	 {
+	      	    	 alertify.notify('User removed: ' + cache.name); 
+	      	    	 nullify();
+	      	    	 container.empty();
+		    	 }
 		      }	
 	      	}).on("error", function(e){
-	      	  alertify.error("Got error: " + e.message);
+	      	  alertify.error(e.message);
+	      	  nullify();
 	      	});
 	      	
 		if (body != "") req.write(body);
 	  	req.end();
+	}
+	
+	function nullify()
+	{
+		cache.name = "";
+		cache.password = "";
+		document.getElementById("formPassword").value = '';
+		document.getElementById("formUsername").value = '';
 	}
 
 	function dec2hex(str){ 

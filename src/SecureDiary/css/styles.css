@@ -28,7 +28,8 @@ article { border-bottom:1px solid #CCC; border-top:1px solid #FFF; font-size:1em
 #status { display: block; cursor:pointer; position:absolute; top: .40em; left:0.5em; background-color: transparent;}	
 #refresh { display: block; cursor:pointer; position:absolute; top: .40em; right:3.5em; background-color: transparent;}   
 #newEntry { display: block; cursor:pointer; position:absolute; top: .40em; right:0.5em }
-#register { display: block; cursor:pointer; position:absolute; top: .40em; right:6.5em }
+#remove { display: block; cursor:pointer; position:absolute; top: .40em; right:6.5em }
+#register { display: block; cursor:pointer; position:absolute; top: .40em; right:9.5em }
 
 #storeEntry { display:none; width:96%; padding: 2%; }
 #storeEntry label { display: block; width:100%; margin:.7em 0 .1em 0; font-weight:bold; }
@@ -44,7 +45,8 @@ article { border-bottom:1px solid #CCC; border-top:1px solid #FFF; font-size:1em
 form {
   /* Just to center the form on the page */
   margin: 0 auto;
-  width: 400px;
+  width: 300px;
+  align: center;
   /* To see the outline of the form */
   padding: 24px 24px 24px 24px;
   border-radius: 1em;

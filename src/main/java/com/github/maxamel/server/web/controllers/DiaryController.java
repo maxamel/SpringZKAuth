@@ -51,6 +51,16 @@ public class DiaryController {
     public DiaryDto add(@Validated @RequestBody DiaryDto dto, @RequestHeader(value="ZKAuth-Token", required=false) String token) {
     	return diaryService.add(dto, token);
     }
+    
+    @ApiOperation(value = "Add new entry")
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Successfully created entry"),
+            @ApiResponse(code = 428, message = "Invalid user info", response = ErrorDto.class)})
+    @ResponseStatus(code = HttpStatus.CREATED)
+    @PostMapping("/{username}/{entryname}")
+    public DiaryDto edit(@PathVariable String username, @PathVariable String entryname, @Validated @RequestBody DiaryDto dto, @RequestHeader(value="ZKAuth-Token", required=false) String token) {
+        return diaryService.edit(username, entryname, dto, token);
+    }
 
     @ApiOperation("Delete entry")
     @ApiResponses({
