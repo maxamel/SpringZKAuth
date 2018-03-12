@@ -11,8 +11,6 @@ public interface DiaryService {
 
 	public DiaryDto add(DiaryDto dto, String sessionId);
 	
-	public DiaryDto edit(String username, String entryname, DiaryDto dto, String sessionId);
-
     public void removeByUsernameAndEntryname(String username, String entryname, String sessionId);
     
     public void removeAll(String username, String sessionId);

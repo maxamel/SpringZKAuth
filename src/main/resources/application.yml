@@ -10,6 +10,8 @@ spring:
 
     hibernate:
       ddl-auto: create-drop
+      transaction:
+        flush-before-completion: true
       use-new-id-generator-mappings: true
       naming:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl

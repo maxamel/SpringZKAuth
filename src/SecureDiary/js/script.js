@@ -25,6 +25,8 @@ $(function(){
 	var STORAGE_KEY = 'entries_list',
 		SEL_CLASS = 'sel';
 
+	var prevTitle = '';
+	
 	var collapse = true,
 		location = null
 
@@ -55,6 +57,7 @@ $(function(){
 		
 		var title = $(this).closest('article').children('h2').text();
 		titleField.val(title);
+		//prevTitle = title; 
 		/*
 		// Delete entry from list
 		var entries = entriesList();
@@ -355,7 +358,11 @@ $(function(){
 	function showForm(type) {
 		// Do the neccessary to show the form
 		var comm = "ADD";
-		if (type == 'edit') comm = "EDIT";
+		if (type == 'edit') 
+		{
+			comm = "DELETE";
+			prevTitle = titleField.val();
+		}
 		$('#btnSubmit').unbind('click').click(function() {
 			if (cache.name == "")
 			{
@@ -369,6 +376,7 @@ $(function(){
 				// Reset form
 				resetForm();
 			}
+			
 		});
 		storeEntry.attr('rel',type);
 		container.hide();
@@ -378,6 +386,16 @@ $(function(){
 		register.hide();
 		noEntries.hide();
 		storeEntry.fadeIn('fast');
+		
+		$('#title').on({
+			  keydown: function(e) {
+			    if (!((e.which > 96 && e.which < 123) || (e.which > 47 && e.which < 58) || (e.which > 64 && e.which < 91)) )
+			      return false;
+			  },
+			  change: function() {
+			    this.value = this.value.replace(/\s/g, "");
+			  }
+			});
 	}
 
 	function showList() {
@@ -447,6 +465,8 @@ $(function(){
 	    url = "/zkauth/";
 	    suburluser = "users/";
 	    suburldiary = "diary/"
+	    deleteurl = titleField.val();
+	    if (prevTitle != "") deleteurl = prevTitle;
 	    object = {};
 	    body = "";
 	    heads = {}
@@ -483,18 +503,9 @@ $(function(){
 				body = JSON.stringify(object);
 				heads["content-length"] = body.length;
 			    break;
-			case "EDIT":
-				meth = 'POST';
-				url += suburldiary;
-				object.username = cache.name;
-				object.entryname = titleField.val();
-				object.content = contentField.val();
-				body = JSON.stringify(object);
-				heads["content-length"] = body.length;
-			    break;
 			case "DELETE":
 				meth = 'DELETE';
-				url += suburldiary + cache.name + "/" + titleField.val();
+				url += suburldiary + cache.name + "/" + deleteurl;
 			    break;
 			case "REFRESH":
 				meth = 'GET';
@@ -517,8 +528,9 @@ $(function(){
 		};
 	    var op = 0;
 	    if (command == "REFRESH") op = 1;
-	    if (command == "ADD" || command == "REGISTER" || command == "DELETE" || command == "EDIT") op = 2;
+	    if (command == "ADD" || command == "REGISTER") op = 2;
 	    if (command == "REMOVE") op = 3;
+	    if (command == "DELETE") op = 4;
 		sendRequestOptions(options,body,op);
 	    body = "";
 	}
@@ -595,6 +607,16 @@ $(function(){
 	      	    	 alertify.notify('User removed: ' + cache.name); 
 	      	    	 nullify();
 	      	    	 container.empty();
+		    	 }
+		    	 if (op == 4) 
+		    	 {
+		    		 if (prevTitle != "")
+		    		 {
+		    			 titleField.val(prevTitle);
+		    			 executeCommand("ADD");
+			    		 prevTitle = "";
+		    		 }
+		    		 else executeCommand("REFRESH");
 		    	 }
 		      }	
 	      	}).on("error", function(e){

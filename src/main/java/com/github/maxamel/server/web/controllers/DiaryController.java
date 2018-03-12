@@ -51,17 +51,7 @@ public class DiaryController {
     public DiaryDto add(@Validated @RequestBody DiaryDto dto, @RequestHeader(value="ZKAuth-Token", required=false) String token) {
     	return diaryService.add(dto, token);
     }
-    
-    @ApiOperation(value = "Add new entry")
-    @ApiResponses({
-            @ApiResponse(code = 201, message = "Successfully created entry"),
-            @ApiResponse(code = 428, message = "Invalid user info", response = ErrorDto.class)})
-    @ResponseStatus(code = HttpStatus.CREATED)
-    @PostMapping("/{username}/{entryname}")
-    public DiaryDto edit(@PathVariable String username, @PathVariable String entryname, @Validated @RequestBody DiaryDto dto, @RequestHeader(value="ZKAuth-Token", required=false) String token) {
-        return diaryService.edit(username, entryname, dto, token);
-    }
-
+   
     @ApiOperation("Delete entry")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Entry has been removed"),
@@ -69,7 +59,7 @@ public class DiaryController {
             @ApiResponse(code = 404, message = "Entry not found")})
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{username}/{entryname}")
-    public void remove(@PathVariable String username, @PathVariable String entryname, @RequestHeader(value="ZKAuth-Token", required=false) String token) {
+    public void remove(@PathVariable(required=true) String username, @PathVariable(required=true) String entryname, @RequestHeader(value="ZKAuth-Token", required=false) String token) {
     	diaryService.removeByUsernameAndEntryname(username, entryname, token);
     }
 

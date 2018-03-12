@@ -1,6 +1,7 @@
 package com.github.maxamel.server.domain.repositories;
 
 import com.github.maxamel.server.domain.model.Diary;
+
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -22,9 +23,7 @@ public interface DiaryRepository {
     Optional<Diary> findByUsernameAndEntryname(String username, String entryname);
     
     List<Diary> findByUsername(String username);
-    
-    void flush();
-
+  
     Diary save(Diary diary);
 
     void delete(long id);

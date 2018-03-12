@@ -9,11 +9,14 @@ import com.github.maxamel.server.services.UserService;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,18 +48,6 @@ public class DiaryServiceImpl implements DiaryService {
         return mapper.map(newdiary, DiaryDto.class);
     }
     
-    @Override
-    @Transactional
-    public DiaryDto edit(String username, String entryname, DiaryDto dto, String sessionId) {
-        userService.fetch(dto.getUsername(), sessionId);
-        repository.findByUsernameAndEntryname(username, entryname).orElseThrow(() -> new EmptyResultDataAccessException("No diary entry found for user: " + username + " and entry " + entryname, 1));
-        repository.deleteByUsernameAndEntryname(username, entryname);
-        repository.flush();
-        Diary diary = mapper.map(dto, Diary.class);
-        Diary newdiary = repository.save(diary);
-        return mapper.map(newdiary, DiaryDto.class);
-    }
-
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void removeByUsernameAndEntryname(String username, String entryname, String sessionId) {
