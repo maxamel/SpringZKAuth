@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -195,20 +196,11 @@ public class UserServiceTest {
         service.fetch(username, answer);
     }
     
-    @Test(expected = AccessDeniedException.class)
+    @Test(expected = EmptyResultDataAccessException.class)
     public void removeNonExistentUser()
     {
-        User result = User.builder()
-                .id(1L)
-                .name(username)
-                .passwordless(pass)
-                .secret(wsec)
-                .sstatus(SessionStatus.WAITING)
-                .build();
-        Optional<User> opt = Optional.of(result);
-        
-        when(repository.findByName(any(String.class))).thenReturn(opt);
-        service.fetch(username, answer);
+        when(repository.findByName(any(String.class))).thenThrow(new EmptyResultDataAccessException("No user found with name: " + username, 1));
+        service.removeByName(username, answer);
     }
     
 

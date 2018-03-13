@@ -149,7 +149,7 @@ $(function(){
 		contentField.val('').removeClass('error');
 	}
 
-	function submitForm(event) {
+	/*function submitForm(event) {
 		event.preventDefault();
 
 		var type = $(this).attr('rel');
@@ -206,7 +206,7 @@ $(function(){
 
 		// Reset form
 		//resetForm();
-	}
+	}*/
 
 	function storageChanged(e) {
 		loadEntries();
@@ -371,10 +371,14 @@ $(function(){
 			else 
 			{	
 				executeCommand(comm);
+				var tit = titleField.val();
+				var con = contentField.val();
 				// Show entries list
 				showList();
 				// Reset form
 				resetForm();
+				titleField.val(tit);
+				contentField.val(con);
 			}
 			
 		});
@@ -389,7 +393,7 @@ $(function(){
 		
 		$('#title').on({
 			  keydown: function(e) {
-			    if (!((e.which > 96 && e.which < 123) || (e.which > 47 && e.which < 58) || (e.which > 64 && e.which < 91)) )
+			    if (!((e.which > 96 && e.which < 123) || (e.which > 47 && e.which < 58) || (e.which > 64 && e.which < 91) || e.which == 8 || e.which == 37 || e.which == 39) )
 			      return false;
 			  },
 			  change: function() {
@@ -429,7 +433,6 @@ $(function(){
 	}
 
 	function runEntries(json) {
-		alert(JSON.stringify(json));
 		container.empty();
 		for (var jsonizedEntry in json) {
 			var entry = {}
@@ -604,7 +607,8 @@ $(function(){
 		    	 if (op == 2) executeCommand("REFRESH");
 		    	 if (op == 3)
 		    	 {
-	      	    	 alertify.notify('User removed: ' + cache.name); 
+	      	    	 alertify.warning('User removed: ' + cache.name); 
+	      	    	 document.getElementById("status").src='img/i_offline.png';
 	      	    	 nullify();
 	      	    	 container.empty();
 		    	 }
@@ -612,9 +616,8 @@ $(function(){
 		    	 {
 		    		 if (prevTitle != "")
 		    		 {
-		    			 titleField.val(prevTitle);
 		    			 executeCommand("ADD");
-			    		 prevTitle = "";
+		    			 prevTitle = "";
 		    		 }
 		    		 else executeCommand("REFRESH");
 		    	 }
