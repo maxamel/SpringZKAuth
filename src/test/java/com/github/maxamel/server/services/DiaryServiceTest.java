@@ -1,7 +1,6 @@
 package com.github.maxamel.server.services;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -18,14 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.maxamel.server.domain.model.Diary;
-import com.github.maxamel.server.domain.model.User;
-import com.github.maxamel.server.domain.model.types.SessionStatus;
 import com.github.maxamel.server.domain.repositories.DiaryRepository;
 import com.github.maxamel.server.services.impl.DiaryServiceImpl;
 import com.github.maxamel.server.services.mapping.MappingBasePackage;
@@ -80,16 +75,18 @@ public class DiaryServiceTest {
                 .id(1L)
                 .username(username)
                 .entryname(entryname+"1")
+                .content(pass)
                 .build();
         
         Diary result2 = Diary.builder()
                 .id(2L)
                 .username(username)
                 .entryname(entryname+"2")
+                .content(pass)
                 .build();
         
         List<Diary> list = Arrays.asList(result1 , result2);
-        when(repository.findByUsername(any(String.class))).thenReturn(list);
+        when(repository.findByUsername(Matchers.any(String.class))).thenReturn(list);
         
         Mockito.doAnswer(new Answer<Object>() {
             @Override
@@ -110,20 +107,23 @@ public class DiaryServiceTest {
                 .id(1L)
                 .username(username)
                 .entryname(entryname)
+                .content(pass)
                 .build();
         DiaryDto result = DiaryDto.builder()
                 .id(1L)
                 .username(username)
                 .entryname(entryname)
+                .content(pass)
                 .build();
         Optional<Diary> opt = Optional.empty();
         
-        when(repository.findByUsernameAndEntryname(any(String.class), any(String.class))).thenReturn(opt);
-        when(repository.save(any(Diary.class))).thenReturn(intermidiate);
+        when(repository.findByUsernameAndEntryname(Matchers.any(String.class), Matchers.any(String.class))).thenReturn(opt);
+        when(repository.save(Matchers.any(Diary.class))).thenReturn(intermidiate);
         DiaryDto dto = diaryService.add(result, pass);
         assertTrue(dto.getId().equals(result.getId()));
         assertTrue(dto.getUsername().equals(result.getUsername()));
         assertTrue(dto.getEntryname().equals(result.getEntryname()));
+        assertTrue(dto.getContent().equals(result.getContent()));
     }
     
     @Test
@@ -133,14 +133,16 @@ public class DiaryServiceTest {
                 .id(1L)
                 .username(username)
                 .entryname(entryname)
+                .content(pass)
                 .build();
         Optional<Diary> opt = Optional.of(result);
         
-        when(repository.findByUsernameAndEntryname(any(String.class), any(String.class))).thenReturn(opt);
+        when(repository.findByUsernameAndEntryname(Matchers.any(String.class), Matchers.any(String.class))).thenReturn(opt);
         DiaryDto dto = diaryService.fetch(username, entryname, pass);
         assertTrue(dto.getId().equals(result.getId()));
         assertTrue(dto.getUsername().equals(result.getUsername()));
         assertTrue(dto.getEntryname().equals(result.getEntryname()));
+        assertTrue(dto.getContent().equals(result.getContent()));
     }
     
     @Test
@@ -150,17 +152,19 @@ public class DiaryServiceTest {
                 .id(1L)
                 .username(username)
                 .entryname(entryname+"1")
+                .content(pass)
                 .build();
         
         Diary result2 = Diary.builder()
                 .id(2L)
                 .username(username)
                 .entryname(entryname+"2")
+                .content(pass)
                 .build();
         
         List<Diary> list = Arrays.asList(result1 , result2);
         
-        when(repository.findByUsername(any(String.class))).thenReturn(list);
+        when(repository.findByUsername(Matchers.any(String.class))).thenReturn(list);
         List<DiaryDto> dtos = diaryService.fetchByUsername(username, pass);
         assertTrue(dtos.get(0).getId().equals(result1.getId()));
         assertTrue(dtos.get(1).getId().equals(result2.getId()));

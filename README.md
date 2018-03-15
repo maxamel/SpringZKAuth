@@ -17,7 +17,7 @@ This project provides enhanced security in the form of ZKPP, and continuous auth
 # Usage
 
 The purpose of the project is to provide a POC-level system, and a demonstration of how the concept of zero-knowledge can assist in application security. 
-If you want to build a RESTful service which provides enhanced security and privacy through ZKPP and continuous authentication then you can use this project as a starting point.
+If you want to build a RESTful service which provides enhanced security and privacy through ZKPP and continuous authentication, then you can use this project as a starting point.
 However, the content to be served by the service is up to you. Currently the guts of the application is just keeping diary entries of users and providing secure, authenticated access to them. You can add your own APIs, DB tables, and all the rest, according to the needs of your own application.
 
 
@@ -33,11 +33,13 @@ Here is an example of a client registering and then making arbitrary requests.
   <img src="https://github.com/maxamel/SpringZKAuth/blob/master/diagram.png" />
 </p>
 
-Note that session ID rotating is not described in the diagram, but it is explained further on. Also, the diagram shows a successful path of execution, while there could be a few other unsuccessful alternatives.
+Note that session ID rotating is not described in the diagram, but it is explained further on. 
 
 
 # Features
 
+* Register and remove users
+* Write/Edit/Remove diaries per user
 * Authentication using zero-knowledge password proof
 * Continuous authentication by publishing challenges to Kafka message broker (Optional)
 * Configurable session inactivity thresholds
@@ -65,6 +67,13 @@ Note that session ID rotating is not described in the diagram, but it is explain
 
 Assuming you have the above programs installed, follow the below steps to install:
 
+Clone and build the repository.
+```
+git clone https://github.com/maxamel/SpringZKAuth.git
+cd SpringZKAuth
+gradle clean build
+```
+
 From the command line install the following modules:
 ```javascript
 npm install big-integer
@@ -75,10 +84,20 @@ npm install no-kafka-slim
 npm install jquery
 npm install -g browserify
 npm install alertify
+```
 
+Go to src/SecureDiary/js and run:
+```
 browserify script.js -o bundle.js
 ```
 
+If you don't want to use Kafka (for continuous authentication) you need to disable it from src/main/resources/application.yml:
+```
+kafka:
+  enabled: false
+```
+
+If you want the continuous authentication feature and have Kafka installed follow the below steps.
 Open your Kafka server.properties and make sure the following lines are present:
 ```
 auto.create.topics.enable=true
@@ -88,11 +107,29 @@ zookeeper.connect=YOUR_ZOOKEEPER_IP:2181
 delete.topic.enable=true
 ```
 
+Enable Kafka in src/main/resources/application.yml and fill in the kafka and zookeeper IP:
+```
+kafka:
+  enabled: true
+  zookeeper:
+    url: "YOUR_ZOOKEEPER_IP:2181"
+  broker:
+    url: "YOUR_KAFKA_IP:9092" 
+```
+
 Restart Kafka. 
 
-# Running the GUI
-
-Open index.html and start logging diaries!
+Lastly, you can adjust the inactivity threshold and challenge intervals (in milliseconds) in src/main/resources/application.yml.
+The challenge Frequency is only valid if Kafka is enabled.
+```
+security:
+  basic:
+    enabled: false
+  session:
+    inactivityKickOut: 20000
+    challengeFrequency: 120000
+```
+That's it. Open the index.html in src/SecureDiary folder and start writing!
 
 # License
 

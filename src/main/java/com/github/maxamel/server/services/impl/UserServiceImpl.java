@@ -52,6 +52,9 @@ public class UserServiceImpl implements UserService {
     @Value("${security.crypto.prime}")
     private String prime;
     
+    @Value("${kafka.enabled}")
+    private String kafka;
+    
     @Autowired
     private ScheduleTaskService scheduler;
     
@@ -158,8 +161,11 @@ public class UserServiceImpl implements UserService {
     private void scheduleAuthTask(User user) 
     {   
         ScheduledExecutorService execService = Executors.newScheduledThreadPool(2);
-        Runnable r1 = () -> {scheduler.publishChallenge(user);};
-        execService.scheduleAtFixedRate(r1, 0, Long.parseLong(chalFreq), TimeUnit.MILLISECONDS);
+        if (kafka.equals("true"))
+        {
+            Runnable r1 = () -> {scheduler.publishChallenge(user);};
+            execService.scheduleAtFixedRate(r1, 0, Long.parseLong(chalFreq), TimeUnit.MILLISECONDS);
+        }
         
         Runnable r2 = () -> {scheduler.handleActivity(user, kafkaTiming);};
         execService.scheduleAtFixedRate(r2, Long.parseLong(inactThreshold), Long.parseLong(inactThreshold), TimeUnit.MILLISECONDS);

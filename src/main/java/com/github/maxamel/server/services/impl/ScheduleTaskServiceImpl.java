@@ -80,7 +80,7 @@ public class ScheduleTaskServiceImpl implements ScheduleTaskService{
                 log.info("Inactivity threshold reached! Invalidating..." + user.getName());
                 user.setSstatus(SessionStatus.INVALIDATED);
                 user.setSecret(null);
-                producer.closeTopic(user.getName());
+                if (producer != null) producer.closeTopic(user.getName());
                 repository.save(user);
                 kafkaTiming.get(olduser.getId()).shutdown();
             }

@@ -393,6 +393,7 @@ $(function(){
 		
 		$('#title').on({
 			  keydown: function(e) {
+				if (e.shiftKey || e.altKey || e.ctrlKey) return false;
 			    if (!((e.which > 96 && e.which < 123) || (e.which > 47 && e.which < 58) || (e.which > 64 && e.which < 91) || e.which == 8 || e.which == 37 || e.which == 39) )
 			      return false;
 			  },
