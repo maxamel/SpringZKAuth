@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService {
     private void scheduleAuthTask(User user) 
     {   
         ScheduledExecutorService execService = Executors.newScheduledThreadPool(2);
-        if (kafka.equals("true"))
+        if ("true".equals(kafka))
         {
             Runnable r1 = () -> {scheduler.publishChallenge(user);};
             execService.scheduleAtFixedRate(r1, 0, Long.parseLong(chalFreq), TimeUnit.MILLISECONDS);
