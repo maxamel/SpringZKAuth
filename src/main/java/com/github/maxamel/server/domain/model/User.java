@@ -14,7 +14,6 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,7 +27,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@EqualsAndHashCode(of = "id", callSuper = true)
 @Entity
 @Table(uniqueConstraints =
         {@UniqueConstraint(name = UserNameUnique.CONSTRAINT_NAME, columnNames = UserNameUnique.FIELD_NAME)})

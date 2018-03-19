@@ -3,6 +3,7 @@ package com.github.maxamel.server.web;
 import com.github.maxamel.server.web.dtos.DiaryDto;
 import com.github.maxamel.server.web.dtos.ErrorCodes;
 import com.github.maxamel.server.config.JsonConfiguration;
+import com.github.maxamel.server.domain.model.constraints.UserEntryNameUnique;
 import com.github.maxamel.server.domain.model.constraints.UserNameUnique;
 import com.github.maxamel.server.services.DiaryService;
 import com.github.maxamel.server.services.UserService;
@@ -112,7 +113,7 @@ public class DiaryControllerTest {
 
         when(service.add(any(DiaryDto.class), any(String.class)))
                 .thenThrow(new DataIntegrityViolationException("",
-                        new ConstraintViolationException("", null, UserNameUnique.CONSTRAINT_NAME)));
+                        new ConstraintViolationException("", null, UserEntryNameUnique.CONSTRAINT_NAME)));
         mvc.perform(post(diary)
                 .content(writer.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -120,7 +121,7 @@ public class DiaryControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath(errorCode, is(equalTo(ErrorCodes.DATA_VALIDATION.toString()))))
                 .andExpect(jsonPath(errors).isArray())
-                .andExpect(jsonPath("$.errors[0].fieldName", is(equalTo("name"))))
+                .andExpect(jsonPath("$.errors[0].fieldName", is(equalTo("username, entryname"))))
                 .andExpect(jsonPath("$.errors[0].errorCode", is(equalTo("UNIQUE"))));
 
         verify(service, times(1)).add(any(DiaryDto.class), any(String.class));

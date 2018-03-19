@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModelProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,7 +20,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@EqualsAndHashCode(of = "id", callSuper = true)
 public class DiaryDto extends AuditableDto {
     private static final long serialVersionUID = 5762617605382814204L;
 
