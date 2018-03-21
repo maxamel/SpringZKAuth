@@ -2,6 +2,8 @@
 [![Quality Gate](https://sonarcloud.io/api/badges/gate?key=com.github.maxamel:SpringZKAuth)](https://sonarcloud.io/api/badges/gate?key=com.github.maxamel:SpringZKAuth)<br/>
 [![Code Coverage](https://sonarcloud.io/api/badges/measure?key=com.github.maxamel:SpringZKAuth&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=com.github.maxamel:SpringZKAuth&metric=coverage)<br/>
 
+[![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=com.github.maxamel:SpringZKAuth)](https://sonarcloud.io/api/project_badges/quality_gate?project=com.github.maxamel:SpringZKAuth)<br/>
+
 # SpringZKAuth : A zero-knowledge authentication application
 
 A Spring project utilizing zero-knowledge password proof for secure and private authentication. Users are continuously authenticated throughout their session using rotating session IDs.
@@ -12,7 +14,7 @@ Status: In development
 
 [Zero-knowledge](https://en.wikipedia.org/wiki/Zero-knowledge_proof) is a cryptographic method one can use when required to prove knowledge of a certain secret without revealing anything about the secret itself.
 This method is utilized in this project to provide a zero-knowledge password proof (ZKPP) authentication mechanism, meaning proving the knowledge of a password without revealing anything about it. Traditionally, when a user logs into a system, he transmits his user and password over the (possibly encrypted) network. Various security methods exist in order to ensure this password is stored securely, such as hashing, salting, etc. 
-This project provides enhanced security in the form of ZKPP, and continuous authentication. Specifically, the password of the user is kept completely secret, and is never transmitted over the wire to the server. The server receives only a cryptographic representation (i.e., a one-way function) of the password, that is irreversible and no one can deduce the original password from it. Additionally, the session ID of the user is periodically rotated on the server side. This session ID is also kept secret and the server only transmits a hint via a message broker (e.g., Kafka) about the new session ID. These hints rely on the [discrete logarithm](https://en.wikipedia.org/wiki/Discrete_logarithm) problem, to ensure only the user can compute the necessary information, and no one else. This makes session hijacking practically useless since the session ID is only valid for a very short period of time (configurable). 
+This project eliminates the need for any of these methods. Specifically, the password of the user is kept completely secret, and is never transmitted over the wire to the server. The server receives only a cryptographic representation (i.e., a one-way function) of the password, that is irreversible and no one can deduce the original password from it. Additionally, the session ID of the user is periodically rotated on the server side (optional). This session ID is also kept secret and the server only transmits a hint via a message broker (e.g., Kafka) about the new session ID. These hints rely on the [discrete logarithm](https://en.wikipedia.org/wiki/Discrete_logarithm) problem, to ensure only the user can compute the necessary information, and no one else. This makes session hijacking practically useless since the session ID is only valid for a very short period of time (configurable). 
 
 # Usage
 
