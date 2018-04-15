@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Loggable(ignore = Exception.class)
 @Api(tags = "Users")
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping(path = "/users")
 public class UserController {
 

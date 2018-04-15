@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Loggable(ignore = Exception.class)
 @Api(tags = "Diaries")
-@CrossOrigin
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping(path = "/diary")
 public class DiaryController {

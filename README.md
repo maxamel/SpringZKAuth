@@ -55,9 +55,7 @@ Note that session ID rotating is not described in the diagram, but it is explain
 
 * NodeJS 5.6.0 or above
 
-* Kafka 0.10.2.1 or above (Optional)
-
-* Zookeeper 3.4.9 or above (Optional)
+* Confluent Open Source Platform 2.11 (Optional)
 
 * H2 database
 
@@ -79,8 +77,6 @@ From the command line install the following modules:
 ```javascript
 npm install big-integer
 npm install stack-lifo
-npm install kafka-node
-npm install no-kafka-slim
 
 npm install jquery
 npm install -g browserify
@@ -98,14 +94,58 @@ kafka:
   enabled: false
 ```
 
-If you want the continuous authentication feature and have Kafka installed follow the below steps.
-Open your Kafka server.properties and make sure the following lines are present:
+If you want the continuous authentication feature follow the below steps to install [Confluent Platform](https://docs.confluent.io/current/installation/) which comes bundled with Kafka, Zookeeper and a bunch of other useful software. Here are instructions for Ubuntu or CentOS installations:
+
+Ubuntu: 
+```
+wget -qO - https://packages.confluent.io/deb/4.0/archive.key | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/4.0 stable main"
+sudo apt-get update && sudo apt-get install confluent-platform-oss-2.11
+confluent start
+```
+
+CentOS:
+```
+sudo rpm --import https://packages.confluent.io/rpm/4.0/archive.key
+```
+
+Add file named confluent.repo to /etc/yum.repos.d/ with the contents:
+```
+[Confluent.dist]
+name=Confluent repository (dist)
+baseurl=https://packages.confluent.io/rpm/4.0/7
+gpgcheck=1
+gpgkey=https://packages.confluent.io/rpm/4.0/archive.key
+enabled=1
+
+[Confluent]
+name=Confluent repository
+baseurl=https://packages.confluent.io/rpm/4.0
+gpgcheck=1
+gpgkey=https://packages.confluent.io/rpm/4.0/archive.key
+enabled=1
+```
+
+Clean up, install and run:
+```
+sudo yum clean all
+sudo yum install confluent-platform-oss-2.11
+confluent start
+```
+
+Open your Kafka server.properties (usually it's in /etc/kafka/) and make sure the following lines are present:
 ```
 auto.create.topics.enable=true
 num.partitions=1
 listeners=PLAINTEXT://YOUR_KAFKA_IP:9092
 zookeeper.connect=YOUR_ZOOKEEPER_IP:2181
 delete.topic.enable=true
+log.retention.ms=60000
+```
+Open your Kafka kafka-rest.properties (usually it's in /etc/kafka-rest/) and make sure the following lines are present:
+```
+zookeeper.connect=YOUR_ZOOKEEPER_IP:2181
+bootstrap.servers=PLAINTEXT://YOUR_KAFKA_IP:9092
 ```
 
 Enable Kafka in src/main/resources/application.yml and fill in the kafka and zookeeper IP:
