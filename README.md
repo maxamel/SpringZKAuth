@@ -76,7 +76,6 @@ gradle clean build
 From the command line install the following modules:
 ```javascript
 npm install big-integer
-npm install stack-lifo
 
 npm install jquery
 npm install -g browserify
@@ -96,15 +95,20 @@ kafka:
 
 If you want the continuous authentication feature follow the below steps to install [Confluent Platform](https://docs.confluent.io/current/installation/) which comes bundled with Kafka, Zookeeper and a bunch of other useful software. Here are instructions for Ubuntu or CentOS installations:
 
-Ubuntu: 
+## Ubuntu: 
+Add repository and key:
 ```
 wget -qO - https://packages.confluent.io/deb/4.0/archive.key | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/4.0 stable main"
+```
+Install and run:
+```
 sudo apt-get update && sudo apt-get install confluent-platform-oss-2.11
 confluent start
 ```
 
-CentOS:
+## CentOS:
+Add Package:
 ```
 sudo rpm --import https://packages.confluent.io/rpm/4.0/archive.key
 ```
@@ -133,7 +137,7 @@ sudo yum install confluent-platform-oss-2.11
 confluent start
 ```
 
-Open your Kafka server.properties (usually it's in /etc/kafka/) and make sure the following lines are present:
+Open your Kafka server.properties file (usually it's in /etc/kafka/) and make sure the following lines are present:
 ```
 auto.create.topics.enable=true
 num.partitions=1
@@ -142,7 +146,7 @@ zookeeper.connect=YOUR_ZOOKEEPER_IP:2181
 delete.topic.enable=true
 log.retention.ms=60000
 ```
-Open your Kafka kafka-rest.properties (usually it's in /etc/kafka-rest/) and make sure the following lines are present:
+Open your kafka-rest.properties file (usually it's in /etc/kafka-rest/) and make sure the following lines are present:
 ```
 zookeeper.connect=YOUR_ZOOKEEPER_IP:2181
 bootstrap.servers=PLAINTEXT://YOUR_KAFKA_IP:9092
@@ -157,8 +161,11 @@ kafka:
   broker:
     url: "YOUR_KAFKA_IP:9092" 
 ```
-
-Restart Kafka. 
+Restart Confluent:
+```
+confluent stop
+confluent start
+```
 
 Lastly, you can adjust the inactivity threshold and challenge intervals (in milliseconds) in src/main/resources/application.yml.
 The challenge Frequency is only valid if Kafka is enabled.
@@ -167,8 +174,8 @@ security:
   basic:
     enabled: false
   session:
-    inactivityKickOut: 20000
-    challengeFrequency: 120000
+    inactivityKickOut: 120000
+    challengeFrequency: 30000
 ```
 That's it. Open the index.html in src/SecureDiary folder and start writing!
 

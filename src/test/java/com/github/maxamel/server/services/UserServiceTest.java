@@ -196,6 +196,22 @@ public class UserServiceTest {
         service.fetch(username, answer);
     }
     
+    @Test(expected = AccessDeniedException.class)
+    public void removeByNameNoSecret()
+    {
+        User result = User.builder()
+                .id(1L)
+                .name(username)
+                .passwordless(pass)
+                .secret(null)
+                .sstatus(SessionStatus.WAITING)
+                .build();
+        Optional<User> opt = Optional.of(result);
+        
+        when(repository.findByName(any(String.class))).thenReturn(opt);
+        service.removeByName(result.getName(),answer);
+    }
+    
     @Test(expected = EmptyResultDataAccessException.class)
     public void removeNonExistentUser()
     {
