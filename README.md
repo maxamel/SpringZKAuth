@@ -1,13 +1,12 @@
 [![Travis CI](https://travis-ci.org/maxamel/SpringZKAuth.svg)](https://travis-ci.org/maxamel/SpringZKAuth)<br/>
 [![Code Coverage](https://sonarcloud.io/api/badges/measure?key=com.github.maxamel:SpringZKAuth&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=com.github.maxamel:SpringZKAuth&metric=coverage)<br/>
+[![Known Vulnerabilities](https://snyk.io/test/github/maxamel/SpringZKAuth/badge.svg)](https://snyk.io/test/github/maxamel/SpringZKAuth)
 
 [![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=com.github.maxamel:SpringZKAuth)](https://sonarcloud.io/api/project_badges/quality_gate?project=com.github.maxamel:SpringZKAuth)<br/>
 
 # SpringZKAuth : A zero-knowledge authentication application
 
 A Spring project utilizing zero-knowledge password proof for secure and private authentication. Users are continuously authenticated throughout their session using rotating session IDs.
-
-Status: In development
 
 # Overview
 
@@ -95,7 +94,7 @@ kafka:
 
 If you want the continuous authentication feature follow the below steps to install [Confluent Platform](https://docs.confluent.io/current/installation/) which comes bundled with Kafka, Zookeeper and a bunch of other useful software. Here are instructions for Ubuntu or CentOS installations:
 
-## Ubuntu: 
+## Ubuntu
 Add repository and key:
 ```
 wget -qO - https://packages.confluent.io/deb/4.0/archive.key | sudo apt-key add -
@@ -107,7 +106,7 @@ sudo apt-get update && sudo apt-get install confluent-platform-oss-2.11
 confluent start
 ```
 
-## CentOS:
+## CentOS
 Add Package:
 ```
 sudo rpm --import https://packages.confluent.io/rpm/4.0/archive.key
@@ -136,6 +135,8 @@ sudo yum clean all
 sudo yum install confluent-platform-oss-2.11
 confluent start
 ```
+
+# Configuration
 
 Open your Kafka server.properties file (usually it's in /etc/kafka/) and make sure the following lines are present:
 ```

@@ -209,7 +209,7 @@ public class UserServiceTest {
         Optional<User> opt = Optional.of(result);
         
         when(repository.findByName(any(String.class))).thenReturn(opt);
-        service.removeByName(result.getName(),answer);
+        service.removeByName(username,answer);
     }
     
     @Test(expected = EmptyResultDataAccessException.class)
