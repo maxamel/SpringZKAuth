@@ -10,7 +10,6 @@ import com.github.maxamel.server.services.ScheduleTaskService;
 import com.github.maxamel.server.services.UserService;
 
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
@@ -115,7 +114,7 @@ public class UserServiceImpl implements UserService {
     
         BigInteger verify = passwordless.modPow(secret, new BigInteger(prime,16));
         
-        if (verify.toString().equals(response)) 
+        if (equals(verify.toString(), response))
         {
             SessionStatus status = user.getSstatus();
             if (!user.getSstatus().equals(SessionStatus.VALIDATED))
@@ -140,6 +139,17 @@ public class UserServiceImpl implements UserService {
         return true;
     }
     
+    // perform constant time string comparison against timing attacks
+    private boolean equals(String a, String b)
+    {
+        if (a.length() != b.length()) return false;
+        boolean bool = true;
+        for (int i=0; i<a.length(); i++)
+            if (a.charAt(i) != b.charAt(i)) bool = false;
+        
+        return bool;
+    }
+    
     private void throwChallengedException(User user) throws AccessDeniedException{
         if (user.getSecret() == null)
         {
@@ -150,12 +160,12 @@ public class UserServiceImpl implements UserService {
     }
 
     public void generateServerSecret(User olduser) {
-    		User user = repository.findByName(olduser.getName()).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + olduser.getName(), 1));
-            SecureRandom random = new SecureRandom(String.valueOf(System.currentTimeMillis()).getBytes(Charset.defaultCharset()));
-            BigInteger bigint =  new BigInteger(256, random);
-            user.setSecret(bigint.toString(16));
-            user.setSstatus(SessionStatus.INITIATING);
-            repository.save(user);                
+    	User user = repository.findByName(olduser.getName()).orElseThrow(() -> new EmptyResultDataAccessException("No user found with name: " + olduser.getName(), 1));
+        SecureRandom random = new SecureRandom();
+        BigInteger bigint =  new BigInteger(256, random);
+        user.setSecret(bigint.toString(16));
+        user.setSstatus(SessionStatus.INITIATING);
+        repository.save(user);                
     }
 
     private void scheduleAuthTask(User user) 
