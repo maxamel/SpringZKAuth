@@ -1,5 +1,5 @@
 [![Travis CI](https://travis-ci.org/maxamel/SpringZKAuth.svg)](https://travis-ci.org/maxamel/SpringZKAuth)<br/>
-[![Code Coverage](https://sonarcloud.io/api/badges/measure?key=com.github.maxamel:SpringZKAuth&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=com.github.maxamel:SpringZKAuth&metric=coverage)<br/>
+[![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=com.github.maxamel%3ASpringZKAuth&metric=coverage)](https://sonarcloud.io/api/project_badges/measure?project=com.github.maxamel%3ASpringZKAuth&metric=coverage)<br/>
 [![Known Vulnerabilities](https://snyk.io/test/github/maxamel/SpringZKAuth/badge.svg)](https://snyk.io/test/github/maxamel/SpringZKAuth)
 
 [![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=com.github.maxamel:SpringZKAuth)](https://sonarcloud.io/api/project_badges/quality_gate?project=com.github.maxamel:SpringZKAuth)<br/>
